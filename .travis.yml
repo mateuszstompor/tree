@@ -1,0 +1,43 @@
+dist: trusty
+sudo: require
+
+compiler: gcc
+language: cpp
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+
+    packages:
+      - gcc-6
+      - g++-6
+      - cmake
+
+jobs:
+  include:
+    - stage: Unit Tests
+      script:
+        - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
+        - sudo ln -s /usr/bin/g++-6 /usr/local/bin/g++
+
+        - export CC=/usr/bin/gcc-6
+        - export CXX=/usr/bin/g++-6
+
+        - sudo apt-get install libcppunit-dev
+
+        - make tests
+
+    - stage: Memory Check
+      script:
+        - sudo ln -s /usr/bin/gcc-6 /usr/local/bin/gcc
+        - sudo ln -s /usr/bin/g++-6 /usr/local/bin/g++
+
+        - sudo apt-get install valgrind
+
+        - export CC=/usr/bin/gcc-6
+        - export CXX=/usr/bin/g++-6
+
+        - sudo apt-get install libcppunit-dev
+
+        - make mem_check
