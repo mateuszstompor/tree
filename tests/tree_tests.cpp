@@ -103,6 +103,39 @@ void aTreeTest::testConstIterator() {
     
 }
 
+void aTreeTest::testNodeChildrenAmount() {
+    aTree<int> tree{};
+    CPPUNIT_ASSERT(tree.size() == 0);
+    CPPUNIT_ASSERT(tree.add_root(2));
+    
+    CPPUNIT_ASSERT(tree.size() == 1);
+    CPPUNIT_ASSERT(tree.get_root_node()->amount_of_children() == 0);
+    
+    CPPUNIT_ASSERT(tree.size() == 1);
+    CPPUNIT_ASSERT(tree.get_root_node()->insert_child(2) != nullptr);
+    CPPUNIT_ASSERT(tree.get_root_node()->amount_of_children() == 1);
+    CPPUNIT_ASSERT(tree.get_root_node()->get_children()[0]->amount_of_children() == 0);
+    CPPUNIT_ASSERT(tree.size() == 2);
+    tree.get_root_node()->get_children()[0]->remove();
+    CPPUNIT_ASSERT(tree.size() == 1);
+    CPPUNIT_ASSERT(tree.get_root_node()->amount_of_children() == 0);
+    CPPUNIT_ASSERT(tree.get_root_node()->insert_child(4) != nullptr);
+    CPPUNIT_ASSERT(tree.get_root_node()->insert_child(5) != nullptr);
+    CPPUNIT_ASSERT(tree.get_root_node()->insert_child(6) != nullptr);
+    CPPUNIT_ASSERT(tree.get_root_node()->amount_of_children() == 3);
+    CPPUNIT_ASSERT(tree.get_root_node()->get_children()[0]->amount_of_children() == 0);
+    CPPUNIT_ASSERT(tree.get_root_node()->get_children()[1]->amount_of_children() == 0);
+    CPPUNIT_ASSERT(tree.get_root_node()->get_children()[1]->insert_child(6) != nullptr);
+    CPPUNIT_ASSERT(tree.get_root_node()->get_children()[2]->amount_of_children() == 0);
+    CPPUNIT_ASSERT(tree.get_root_node()->amount_of_children() == 4);
+    CPPUNIT_ASSERT(tree.size() == 5);
+    tree.get_root_node()->get_children()[1]->remove();
+    CPPUNIT_ASSERT(tree.size() == 3);
+    CPPUNIT_ASSERT(tree.get_root_node()->amount_of_children() == 2);
+    tree.clear();
+    CPPUNIT_ASSERT(tree.size() == 0);
+}
+
 void aTreeTest::testEmptiness() {
     aTree<int> tree{};
     CPPUNIT_ASSERT(tree.is_empty());
