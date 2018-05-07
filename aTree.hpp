@@ -48,6 +48,7 @@ namespace ms {
 
         void clear();
         bool is_empty();
+        constexpr size_t size() { return nodes_amount; }
         bool add_root(T const & value);
         bool add_root(T && value);
         constexpr Node * get_root_node() const { return root; }
@@ -75,7 +76,7 @@ namespace ms {
             iterator  operator+ (difference_type v) const;
             bool      operator==(const iterator& rhs) const;
             bool      operator!=(const iterator& rhs) const;
-
+            Node const & current_node() const;
         private:
             tree_const_iterator(std::stack<Node *> const & stack) : stack{stack} { }
             std::stack<Node *> stack;
@@ -88,20 +89,28 @@ namespace ms {
 
     private:
         //members
+        size_t nodes_amount{0};
         Node* root;
     };
 
 }
 
 template<typename T>
-ms::aTree<T>::Node::Node(T const & v, aTree* owner, Node * parent) : parent{parent}, owner{owner}, value{v} {}
+ms::aTree<T>::Node::Node(T const & v, aTree* owner, Node * parent) : parent{parent}, owner{owner}, value{v} {
+    owner->nodes_amount += 1;
+}
 
 template<typename T>
-ms::aTree<T>::Node::Node(T && v, aTree* owner, Node * parent) : parent{parent}, owner{owner}, value{std::forward<T>(v)} {}
+ms::aTree<T>::Node::Node(T && v, aTree* owner, Node * parent) : parent{parent}, owner{owner}, value{std::forward<T>(v)} {
+    owner->nodes_amount += 1;
+}
 
 template<typename T>
 ms::aTree<T>::Node::~Node() {
-    for(size_t i{0}; i < children.size(); ++i) { delete children[i]; }
+    owner->nodes_amount -= 1;
+    for(size_t i{0}; i < children.size(); ++i) {
+        delete children[i];
+    }
 }
 
 template <typename T>
@@ -164,7 +173,10 @@ bool ms::aTree<T>::add_root(T && value) {
 
 template <typename T>
 void ms::aTree<T>::clear() {
-    if (root != nullptr) { delete root; root = nullptr;}
+    if (root != nullptr) {
+        delete root;
+        root = nullptr;
+    }
 }
 
 template <typename T>
@@ -227,6 +239,11 @@ typename ms::aTree<T>::const_iterator::iterator ms::aTree<T>::const_iterator::op
     auto temp = *this;
     ++(*this);
     return temp;
+}
+
+template <typename T>
+typename ms::aTree<T>::Node const & ms::aTree<T>::const_iterator::current_node() const {
+    return *stack.top();
 }
 
 template <typename T>

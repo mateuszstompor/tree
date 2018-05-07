@@ -6,6 +6,7 @@
 class aTreeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST_SUITE(aTreeTest);
     CPPUNIT_TEST(testInsert);
+    CPPUNIT_TEST(testSize);
     CPPUNIT_TEST(testEmptiness);
     CPPUNIT_TEST(testConstIterator);
     CPPUNIT_TEST_SUITE_END();
@@ -13,6 +14,7 @@ public:
     void setUp();
     void tearDown();
     void testInsert();
+    void testSize();
     void testConstIterator();
     void testEmptiness();
 };

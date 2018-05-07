@@ -25,6 +25,34 @@ void aTreeTest::testInsert() {
     CPPUNIT_ASSERT(tree.get_root_node()->get_children().size() == 0);
 }
 
+void aTreeTest::testSize() {
+    aTree<int> tree{};
+    CPPUNIT_ASSERT(0 == tree.size());
+    CPPUNIT_ASSERT(tree.add_root(3));
+    CPPUNIT_ASSERT(1 == tree.size());
+    tree.get_root_node()->insert_child(4);
+    CPPUNIT_ASSERT(2 == tree.size());
+    tree.get_root_node()->insert_child(5);
+    CPPUNIT_ASSERT(3 == tree.size());
+    tree.get_root_node()->insert_child(6);
+    CPPUNIT_ASSERT(4 == tree.size());
+    tree.clear();
+    CPPUNIT_ASSERT(0 == tree.size());
+    
+    aTree<int> second_tree{};
+    CPPUNIT_ASSERT(second_tree.add_root(3));
+    second_tree.get_root_node()->insert_child(4);
+    CPPUNIT_ASSERT(2 == second_tree.size());
+    second_tree.get_root_node()->get_children()[0]->remove();
+    CPPUNIT_ASSERT(1 == second_tree.size());
+    second_tree.get_root_node()->insert_child(5);
+    CPPUNIT_ASSERT(2 == second_tree.size());
+    second_tree.get_root_node()->insert_child(6);
+    
+    aTree<int> third_tree{4};
+    CPPUNIT_ASSERT(third_tree.size() == 1);
+}
+
 void aTreeTest::testConstIterator() {
     aTree<int> tree{};
     CPPUNIT_ASSERT(tree.add_root(3));
