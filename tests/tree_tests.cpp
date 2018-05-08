@@ -51,6 +51,12 @@ void aTreeTest::testSize() {
     
     aTree<int> third_tree{4};
     CPPUNIT_ASSERT(third_tree.size() == 1);
+    for(auto node : third_tree) {
+        CPPUNIT_ASSERT(node == 4);
+    }
+    
+    third_tree.get_root_node()->remove();
+    CPPUNIT_ASSERT(third_tree.begin() == third_tree.end());
 }
 
 void aTreeTest::testConstIterator() {

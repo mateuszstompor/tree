@@ -136,7 +136,7 @@ void ms::aTree<T>::Node::remove() {
 
 template <typename T>
 typename ms::aTree<T>::Node * ms::aTree<T>::Node::insert_child(T const & value) {
-    return insert_child_at(std::forward<T>(value), children.end());
+    return insert_child_at(value, children.end());
 }
 
 template <typename T>
@@ -213,7 +213,9 @@ bool ms::aTree<T>::is_empty() {
 template <typename T>
 typename ms::aTree<T>::const_iterator ms::aTree<T>::begin() {
     auto stack = std::stack<Node*>{};
-    stack.push(root);
+    if(root != nullptr) {
+        stack.push(root);
+    }
     return tree_const_iterator(stack);
 }
 
