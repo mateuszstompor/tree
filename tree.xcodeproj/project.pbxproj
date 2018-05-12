@@ -24,7 +24,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		5626102F209F67A500731C17 /* aTree */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = aTree; sourceTree = BUILT_PRODUCTS_DIR; };
+		5626102F209F67A500731C17 /* tree */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = tree; sourceTree = BUILT_PRODUCTS_DIR; };
 		5626103A209F67C800731C17 /* tree_tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tree_tests.cpp; sourceTree = "<group>"; };
 		5626103B209F67C800731C17 /* tree_tests.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = tree_tests.hpp; sourceTree = "<group>"; };
 		5626103C209F67C800731C17 /* tree_testing_program.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tree_testing_program.cpp; sourceTree = "<group>"; };
@@ -54,7 +54,7 @@
 		56261030209F67A500731C17 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				5626102F209F67A500731C17 /* aTree */,
+				5626102F209F67A500731C17 /* tree */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -72,9 +72,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		5626102E209F67A500731C17 /* aTree */ = {
+		5626102E209F67A500731C17 /* tree */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 56261036209F67A500731C17 /* Build configuration list for PBXNativeTarget "aTree" */;
+			buildConfigurationList = 56261036209F67A500731C17 /* Build configuration list for PBXNativeTarget "tree" */;
 			buildPhases = (
 				5626102B209F67A500731C17 /* Sources */,
 				5626102C209F67A500731C17 /* Frameworks */,
@@ -84,9 +84,9 @@
 			);
 			dependencies = (
 			);
-			name = aTree;
+			name = tree;
 			productName = aTree;
-			productReference = 5626102F209F67A500731C17 /* aTree */;
+			productReference = 5626102F209F67A500731C17 /* tree */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -116,7 +116,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				5626102E209F67A500731C17 /* aTree */,
+				5626102E209F67A500731C17 /* tree */,
 			);
 		};
 /* End PBXProject section */
@@ -289,7 +289,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		56261036209F67A500731C17 /* Build configuration list for PBXNativeTarget "aTree" */ = {
+		56261036209F67A500731C17 /* Build configuration list for PBXNativeTarget "tree" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				56261037209F67A500731C17 /* Debug */,

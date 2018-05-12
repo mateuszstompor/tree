@@ -24,8 +24,8 @@ namespace ms {
         class iterator {
             friend class tree;
             friend class const_iterator;
-                            iterator    (std::stack<node*> const &);
-                            iterator    (std::stack<node*> &&);
+                                iterator        (std::stack<node*> const &);
+                                iterator        (std::stack<node*> &&);
         public:
 
             typedef typename A::difference_type     difference_type;
@@ -34,30 +34,18 @@ namespace ms {
             typedef typename A::pointer             pointer;
             typedef std::forward_iterator_tag       iterator_category;
             
-                                iterator    (const_iterator const &);
-                                iterator    (const_iterator &&);
-                                iterator    (iterator const &) = default;
-                                iterator    (iterator &&);
-                                ~iterator   () = default;
-            iterator&           operator =  (iterator const &) = default;
-            bool                operator == (iterator const &) const;
-            bool                operator != (iterator const &) const;
-            bool                operator <  (const iterator&) const; //not implemented yet
-            bool                operator >  (const iterator&) const; //not implemented yet
-            bool                operator <= (const iterator&) const; //not implemented yet
-            bool                operator >= (const iterator&) const; //not implemented yet
-            iterator&           operator ++ ();
-            iterator            operator ++ (int);
-            iterator&           operator -- (); //not implemented yet
-            iterator            operator -- (int); //not implemented yet
-            iterator&           operator += (size_type); //not implemented yet
-            iterator            operator +  (size_type) const; //not implemented yet
-            friend iterator     operator +  (size_type, const iterator&); //not implemented yet
-            iterator&           operator -= (size_type); //not implemented yet
-            iterator            operator -  (size_type) const; //not implemented yet
-            difference_type     operator -  (iterator) const; //not implemented yet
-            reference           operator *  () const;
-            pointer             operator -> () const;
+                                iterator        (const_iterator const &);
+                                iterator        (const_iterator &&);
+                                iterator        (iterator const &) = default;
+                                iterator        (iterator &&);
+                                ~iterator       () = default;
+            iterator&           operator =      (iterator const &) = default;
+            bool                operator ==     (iterator const &) const;
+            bool                operator !=     (iterator const &) const;
+            iterator&           operator ++     ();
+            iterator            operator ++     (int);
+            reference           operator *      () const;
+            pointer             operator ->     () const;
             
         private:
             std::stack<node*> stack;
@@ -76,36 +64,21 @@ namespace ms {
             typedef const typename A::pointer       pointer;
             typedef std::forward_iterator_tag       iterator_category;
             
-                                const_iterator (const_iterator const &) = default;
-                                const_iterator (const_iterator &&);
-                                const_iterator (iterator const  &);
-                                const_iterator (iterator &&);
-                                ~const_iterator() = default;
+                                const_iterator  (const_iterator const &) = default;
+                                const_iterator  (const_iterator &&);
+                                const_iterator  (iterator const  &);
+                                const_iterator  (iterator &&);
+                                ~const_iterator () = default;
             const_iterator &    operator =      (const const_iterator&) = default;
             bool                operator ==     (const const_iterator&) const;
             bool                operator !=     (const const_iterator&) const;
-            bool                operator <      (const const_iterator&) const; //not implemented yet
-            bool                operator >      (const const_iterator&) const; //not implemented yet
-            bool                operator <=     (const const_iterator&) const; //not implemented yet
-            bool                operator >=     (const const_iterator&) const; //not implemented yet
             const_iterator &    operator ++     ();
             const_iterator      operator ++     (int);
-            const_iterator&     operator --     (); //not implemented yet
-            const_iterator      operator --     (int); //not implemented yet
-            const_iterator&     operator +=     (size_type); //not implemented yet
-            const_iterator      operator +      (size_type) const; //not implemented yet
-        friend const_iterator   operator +      (size_type, const const_iterator&); //not implemented yet
-            const_iterator&     operator -=     (size_type); //not implemented yet
-            const_iterator      operator -      (size_type) const; //not implemented yet
-            difference_type     operator -      (const_iterator) const; //not implemented yet
-            reference           operator *() const;
-            pointer             operator ->() const;
+            reference           operator *      () const;
+            pointer             operator ->     () const;
         private:
             std::stack<node*> stack;
         };
-        
-//        typedef std::reverse_iterator<iterator> reverse_iterator; //optional
-//        typedef std::reverse_iterator<const_iterator> const_reverse_iterator; //optional
         
                                 tree            () = default;
                                 tree            (const tree&);
@@ -121,39 +94,13 @@ namespace ms {
         iterator                end             ();
         const_iterator          end             () const;
         const_iterator          cend            () const;
-//        reverse_iterator rbegin(); //optional
-//        const_reverse_iterator rbegin() const; //optional
-//        const_reverse_iterator crbegin() const; //optional
-//        reverse_iterator rend(); //optional
-//        const_reverse_iterator rend() const; //optional
-//        const_reverse_iterator crend() const; //optional
-    
-
-        
-//        template<class ...Args>
-//        iterator emplace(const_iterator, Args&&...); //optional
-        
-        iterator                insert_sibling  (const_iterator, const T&);
-        iterator                insert_child    (const_iterator, size_type, const T&);
-        
-//        iterator insert(const_iterator, T&&); //optional
-//        iterator insert(const_iterator, size_type, T&); //optional
-//        template<class iter>
-//        iterator insert(const_iterator, iter, iter); //optional
-//        iterator insert(const_iterator, std::initializer_list<T>); //optional
+        iterator                insert_s        (const_iterator, const T&);
+        iterator                insert_c        (const_iterator, size_type, const T&);
         iterator                erase           (const_iterator);
-//        iterator erase(const_iterator, const_iterator); //optional
         void                    clear           ();
-//        template<class iter>
-//        void assign(iter, iter); //optional
-//        void assign(std::initializer_list<T>); //optional
-//        void assign(size_type, const T&); //optional
-        
-//        void swap(tree&);
+        void                    swap            (tree & t);
         constexpr size_type     size            () const { return tree_size; }
         constexpr bool          empty           () const { return tree_size == 0; }
-        
-//        A get_allocator() const; //optional
         
     private:
         
@@ -342,7 +289,7 @@ typename ms::tree<T, A>::const_iterator ms::tree<T, A>::begin() const {
 }
 
 template<class T, class A>
-typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_child(const_iterator it, size_type index, const T& value) {
+typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_c(const_iterator it, size_type index, const T& value) {
     if(it != cend()) {
         tree_size += 1;
         auto parent = it.stack.top();
@@ -360,7 +307,7 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_child(const_iterator it
 }
 
 template<class T, class A>
-typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_sibling(const_iterator it, const T& value) {
+typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s(const_iterator it, const T& value) {
     tree_size+=1;
     if(it.stack.empty()) {
         std::stack<node*> s {};
@@ -423,6 +370,11 @@ typename ms::tree<T, A>::tree & ms::tree<T, A>::operator = (const tree & t) {
     return *this;
 }
 
+template<class T, class A>
+void ms::tree<T, A>::swap(tree & t) {
+    std::swap(root_nodes, t.root_nodes);
+    std::swap(tree_size, t.tree_size);
+}
 
 template<class T, class A>
 typename ms::tree<T, A>::iterator ms::tree<T, A>::erase(const_iterator iter) {
