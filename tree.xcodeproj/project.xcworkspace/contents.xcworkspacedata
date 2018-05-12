@@ -2,6 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "self:aTree.xcodeproj">
+      location = "self:/Users/mateuszstompor/Documents/ngin/third-party-libs/aTree/tree.xcodeproj">
    </FileRef>
 </Workspace>
