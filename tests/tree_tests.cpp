@@ -7,11 +7,45 @@ using namespace ms;
 void aTreeTest::setUp() {
     tree = new ms::tree<int>{};
     s_tree = new ms::tree<int>{};
+    
+    t_tree.insert_s(t_tree.end(), 1);
+    t_tree.insert_c(t_tree.begin(), 0, 4);
+    t_tree.insert_s(t_tree.end(), 2);
+    t_tree.insert_c(++t_tree.begin(), 0, 5);
+    t_tree.insert_s(t_tree.end(), 3);
+    t_tree.insert_c(++(++t_tree.begin()), 0, 6);
+    auto const i = t_tree.insert_c(++(++(++t_tree.begin())), 0, 7);
+    t_tree.insert_s(i, 8);
 }
 
 void aTreeTest::tearDown() {
     delete tree;
     delete s_tree;
+}
+
+void aTreeTest::testParentIterator() {
+//    CPPUNIT_ASSERT(t_tree.begin().parent() == t_tree.begin());
+//
+//    CPPUNIT_ASSERT((++t_tree.begin()).parent() == t_tree.begin());
+//    CPPUNIT_ASSERT(t_tree.begin().parent().parent().parent() == t_tree.end());
+//    CPPUNIT_ASSERT(t_tree.begin().parent().parent()++ == t_tree.end());
+//    
+//    auto i = t_tree.begin();
+//    
+//    CPPUNIT_ASSERT(*i = 5);
+//    CPPUNIT_ASSERT(*i.parent() = 4);
+//    CPPUNIT_ASSERT(*i.parent().parent() = 1);
+//    
+//    auto z = i.parent();
+//    CPPUNIT_ASSERT(*z = 4);
+//    z++;
+//    CPPUNIT_ASSERT(*z == 5);
+//    ++z;
+//    CPPUNIT_ASSERT(*z == 2);
+//    ++z;
+//    CPPUNIT_ASSERT(*z == 3);
+//    ++z;
+//    CPPUNIT_ASSERT(z == 6);
 }
 
 void aTreeTest::testInsert() {
@@ -98,6 +132,24 @@ void aTreeTest::testCopyConstructor() {
     CPPUNIT_ASSERT(it_t2 == t2.end());
 }
 
+void aTreeTest::testInsert4() {
+    tree->insert_s(tree->end(), 1);
+    tree->insert_c(tree->begin(), 0, 4);
+    tree->insert_s(tree->end(), 2);
+    tree->insert_c(++tree->begin(), 0, 5);
+    tree->insert_s(tree->end(), 3);
+    tree->insert_c(++(++tree->begin()), 0, 6);
+    auto i = tree->insert_c(++(++(++tree->begin())), 0, 7);
+    auto b = tree->begin();
+    CPPUNIT_ASSERT(*b == 1);
+    CPPUNIT_ASSERT(*(++b) == 4);
+    CPPUNIT_ASSERT(*(++b) == 5);
+    CPPUNIT_ASSERT(*(++b) == 6);
+    CPPUNIT_ASSERT(*(++b) == 7);
+    CPPUNIT_ASSERT(*(++b) == 2);
+    CPPUNIT_ASSERT(*(++b) == 3);
+}
+
 void aTreeTest::testInsert2() {
     auto iterator = tree->insert_s(tree->cbegin(), 1);
     auto i = tree->insert_c(tree->insert_c(tree->begin(), 0, 3), 0, 2);
@@ -128,6 +180,21 @@ void aTreeTest::testInsert2() {
     CPPUNIT_ASSERT(*it2 == 3);
     ++it2;
     CPPUNIT_ASSERT(*it2 == 2);
+}
+
+void aTreeTest::testInsert3() {
+    tree->insert_s(tree->end(), 1);
+    tree->insert_c(tree->begin(), 0, 4);
+    tree->insert_s(tree->end(), 2);
+    tree->insert_c(++(++tree->begin()), 0, 5);
+    tree->insert_s(tree->end(), 3);
+    tree->insert_c(++(++tree->begin()), 1, 6);
+    
+    auto i = tree->begin();
+    CPPUNIT_ASSERT(*i == 1);
+    CPPUNIT_ASSERT(*(++i) == 4);
+    CPPUNIT_ASSERT(*(++i) == 2);
+    CPPUNIT_ASSERT(*(++i) == 5);
 }
 
 void aTreeTest::testDeletion() {
@@ -181,6 +248,19 @@ void aTreeTest::testConstIterator() {
     auto it = tree->cbegin();
     it = it;
     CPPUNIT_ASSERT((tree->cbegin() != tree->cend()) == false);
+    
+    auto i = t_tree.begin();
+    CPPUNIT_ASSERT(*i == 1);
+    CPPUNIT_ASSERT(*(++i) == 4);
+    CPPUNIT_ASSERT(*(++i) == 5);
+    CPPUNIT_ASSERT(*(++i) == 6);
+    auto p = ++i;
+    CPPUNIT_ASSERT(*(i) == 8);
+    CPPUNIT_ASSERT(*p.parent() == 6);
+    CPPUNIT_ASSERT(*((++p).parent()) == 6);
+    CPPUNIT_ASSERT(*(++i) == 7);
+    CPPUNIT_ASSERT(*(++i) == 2);
+    CPPUNIT_ASSERT(*(++i) == 3);
 }
 
 void aTreeTest::testEmptiness() {
