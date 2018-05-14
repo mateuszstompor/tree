@@ -70,7 +70,7 @@ namespace ms {
             const_reverse_iterator      operator ++             (int);
             reference                   operator *              () const;
             pointer                     operator ->             () const;
-            iterator                    parent                  () const;
+            const_reverse_iterator      parent                  () const;
 
         private:
             std::vector<node *> const & __rn;
@@ -303,10 +303,10 @@ typename ms::tree<T, A>::const_reverse_iterator & ms::tree<T, A>::const_reverse_
     return *this;
 }
 
-//template<class T, class A>
-//typename ms::tree<T, A>::const_reverse_iterator ms::tree<T, A>::const_reverse_iterator::parent () const {
-//    return reverse_iterator{__current != nullptr ? __current->__p : nullptr, __rn};
-//}
+template<class T, class A>
+typename ms::tree<T, A>::const_reverse_iterator ms::tree<T, A>::const_reverse_iterator::parent () const {
+    return const_reverse_iterator{__current != nullptr ? __current->__p : nullptr, __rn};
+}
 
 template<class T, class A>
 typename ms::tree<T, A>::reverse_iterator ms::tree<T, A>::reverse_iterator::operator ++ (int) {
