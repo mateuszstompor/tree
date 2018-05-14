@@ -12,8 +12,9 @@ namespace ms {
     class tree {
         struct node;
     public:
-        class reverse_iterator;
+        
         class const_reverse_iterator;
+        class reverse_iterator;
         class const_iterator;
         class iterator;
         
@@ -25,7 +26,7 @@ namespace ms {
         
         class reverse_iterator {
             friend class tree;
-                                reverse_iterator        (node*, std::vector<node*>&);
+                                        reverse_iterator        (node*, std::vector<node*>&);
         public:
             
             typedef typename A::value_type          value_type;
@@ -33,27 +34,54 @@ namespace ms {
             typedef typename A::pointer             pointer;
             typedef std::forward_iterator_tag       iterator_category;
 
-                                reverse_iterator    (reverse_iterator const &) = default;
-                                ~reverse_iterator   () = default;
-            reverse_iterator &  operator =          (reverse_iterator const &) = default;
-            bool                operator ==         (reverse_iterator const &) const;
-            bool                operator !=         (reverse_iterator const &) const;
-            reverse_iterator &  operator ++         ();
-            reverse_iterator    operator ++         (int);
-            reference           operator *          () const;
-            pointer             operator ->         () const;
-            reverse_iterator    parent              () const;
+                                        reverse_iterator    (reverse_iterator const &) = default;
+                                        ~reverse_iterator   () = default;
+            reverse_iterator &          operator =          (reverse_iterator const &) = default;
+            bool                        operator ==         (reverse_iterator const &) const;
+            bool                        operator !=         (reverse_iterator const &) const;
+            reverse_iterator &          operator ++         ();
+            reverse_iterator            operator ++         (int);
+            reference                   operator *          () const;
+            pointer                     operator ->         () const;
+            reverse_iterator            parent              () const;
             
         private:
-            std::vector<node *> __rn;
-            node *              __current;
+            std::vector<node *> &       __rn;
+            node *                      __current;
+        };
+        
+        class const_reverse_iterator {
+            friend class tree;
+            friend class reverse_iterator;
+                                        const_reverse_iterator  (node const *, std::vector<node*> const &);
+        public:
+            
+            typedef typename A::value_type          value_type;
+            typedef T const &                       reference;
+            typedef const T *                       pointer;
+            typedef std::forward_iterator_tag       iterator_category;
+            
+                                        const_reverse_iterator  (const_reverse_iterator const &) = default;
+                                        ~const_reverse_iterator () = default;
+            const_reverse_iterator &    operator =              (const const_reverse_iterator &) = default;
+            bool                        operator ==             (const const_reverse_iterator &) const;
+            bool                        operator !=             (const const_reverse_iterator &) const;
+            const_reverse_iterator &    operator ++             ();
+            const_reverse_iterator      operator ++             (int);
+            reference                   operator *              () const;
+            pointer                     operator ->             () const;
+            iterator                    parent                  () const;
+
+        private:
+            std::vector<node *> const & __rn;
+            node const *                __current;
         };
         
         class iterator {
             friend class tree;
             friend class const_iterator;
-                                iterator        (std::stack<node*> const &);
-                                iterator        (std::stack<node*> &&);
+                                        iterator                (std::stack<node*> const &);
+                                        iterator                (std::stack<node*> &&);
         public:
 
             typedef typename A::value_type          value_type;
@@ -61,105 +89,109 @@ namespace ms {
             typedef typename A::pointer             pointer;
             typedef std::forward_iterator_tag       iterator_category;
             
-                                iterator        (const_iterator const & = std::stack<node*>{});
-                                iterator        (const_iterator &&);
-                                iterator        (iterator const &) = default;
-                                iterator        (iterator &&);
-                                ~iterator       () = default;
-            iterator&           operator =      (iterator const &) = default;
-            bool                operator ==     (iterator const &) const;
-            bool                operator !=     (iterator const &) const;
-            iterator&           operator ++     ();
-            iterator            operator ++     (int);
-            reference           operator *      () const;
-            pointer             operator ->     () const;
-            iterator            parent          () const;
+                                        iterator                (const_iterator const & = std::stack<node*>{});
+                                        iterator                (const_iterator &&);
+                                        iterator                (iterator const &) = default;
+                                        iterator                (iterator &&);
+                                        ~iterator               () = default;
+            iterator&                   operator =              (iterator const &) = default;
+            bool                        operator ==             (iterator const &) const;
+            bool                        operator !=             (iterator const &) const;
+            iterator&                   operator ++             ();
+            iterator                    operator ++             (int);
+            reference                   operator *              () const;
+            pointer                     operator ->             () const;
+            iterator                    parent                  () const;
             
         private:
             
-            std::stack<node*>   __stack;
+            std::stack<node *>  __stack;
         };
         
         class const_iterator {
             friend class tree;
             friend class iterator;
-                                const_iterator  (std::stack<node*> const & = std::stack<node*>{});
-                                const_iterator  (std::stack<node*> &&);
+                                        const_iterator          (std::stack<node*> const & = std::stack<node*>{});
+                                        const_iterator          (std::stack<node*> &&);
             public:
             
             typedef typename A::value_type          value_type;
-            typedef const typename A::reference     reference;
-            typedef const typename A::pointer       pointer;
+            typedef T const &                       reference;
+            typedef const T *                       pointer;
             typedef std::forward_iterator_tag       iterator_category;
             
-                                const_iterator  (const_iterator const &) = default;
-                                const_iterator  (const_iterator &&);
-                                const_iterator  (iterator const  &);
-                                const_iterator  (iterator &&);
-                                ~const_iterator () = default;
-            const_iterator &    operator =      (const const_iterator&) = default;
-            bool                operator ==     (const const_iterator&) const;
-            bool                operator !=     (const const_iterator&) const;
-            const_iterator &    operator ++     ();
-            const_iterator      operator ++     (int);
-            reference           operator *      () const;
-            pointer             operator ->     () const;
+                                        const_iterator          (const_iterator const &) = default;
+                                        const_iterator          (const_iterator &&);
+                                        const_iterator          (iterator const  &);
+                                        const_iterator          (iterator &&);
+                                        ~const_iterator         () = default;
+            const_iterator &            operator =              (const const_iterator &) = default;
+            bool                        operator ==             (const const_iterator &) const;
+            bool                        operator !=             (const const_iterator &) const;
+            const_iterator &            operator ++             ();
+            const_iterator              operator ++             (int);
+            reference                   operator *              () const;
+            pointer                     operator ->             () const;
             
         private:
             
-            std::stack<node*>   __stack;
+            std::stack<node *>  __stack;
         };
         
-                                tree            () = default;
-                                tree            (const tree&);
-                                tree            (tree &&);
-                                ~tree           ();
-        tree &                  operator =      (const tree&);
-        tree &                  operator =      (tree &&);
-        bool                    operator ==     (const tree&) const;
-        bool                    operator !=     (const tree&) const;
-        iterator                begin           ();
-        const_iterator          begin           () const;
-        const_iterator          cbegin          () const;
-        iterator                end             ();
-        const_iterator          end             () const;
-        const_iterator          cend            () const;
-        reverse_iterator        rbegin          ();
-//        const_reverse_iterator  rbegin          () const; //optional
-//        const_reverse_iterator  crbegin         () const; //optional
-        reverse_iterator        rend            ();
-//        const_reverse_iterator  rend            () const; //optional
-//        const_reverse_iterator  crend           () const; //optional
-        iterator                insert_s        (const_iterator, const T&);
-        iterator                insert_c        (const_iterator, size_type, const T&);
-        iterator                erase           (const_iterator);
-        void                    clear           ();
-        void                    swap            (tree &);
-        constexpr size_type     size            () const { return __size; }
-        constexpr bool          empty           () const { return __size == 0; }
+//        typedef std::reverse_iterator<reverse_iterator> reverse_iterator;
+//        typedef std::reverse_iterator<const_iterator> const_reverse_iterator;
+        
+                                        tree                    () = default;
+                                        tree                    (const tree &);
+                                        tree                    (tree &&);
+                                        ~tree                   ();
+        tree &                          operator =              (const tree&);
+        tree &                          operator =              (tree &&);
+        bool                            operator ==             (const tree &) const;
+        bool                            operator !=             (const tree &) const;
+        iterator                        begin                   ();
+        const_iterator                  begin                   () const;
+        const_iterator                  cbegin                  () const;
+        iterator                        end                     ();
+        const_iterator                  end                     () const;
+        const_iterator                  cend                    () const;
+        reverse_iterator                rbegin                  ();
+        const_reverse_iterator          rbegin                  () const;
+        const_reverse_iterator          crbegin                 () const;
+        reverse_iterator                rend                    ();
+        const_reverse_iterator          rend                    () const;
+        const_reverse_iterator          crend                   () const;
+        iterator                        insert_s                (const_iterator, const T &);
+        iterator                        insert_c                (const_iterator, size_type, const T &);
+        iterator                        erase                   (const_iterator);
+        void                            clear                   ();
+        void                            swap                    (tree &);
+        constexpr size_type             size                    () const { return __size; }
+        constexpr bool                  empty                   () const { return __size == 0; }
         
     private:
         
         struct node {
             friend class tree;
-                                node            (T const &, node * p = nullptr);
-                                node            (T &&, node * p = nullptr);
-                                node            (node const &) = delete;
-                                node            (node &&) = delete;
-            node &              operator =      (node &&) = delete;
-            node &              operator =      (node const &) = delete;
-            bool                operator ==     (node const &);
-            bool                operator !=     (node const &);
-            static std::size_t  release         (node *);
-            static node *       copy            (node *);
-                                ~node() = default;
-            T                   __v;
-            node *              __p;
-            std::vector<node*>  __c{};
+                                        node                    (T const &, node * p = nullptr);
+                                        node                    (T &&, node * p = nullptr);
+                                        node                    (node const &) = delete;
+                                        node                    (node &&) = delete;
+            node &                      operator =              (node &&) = delete;
+            node &                      operator =              (node const &) = delete;
+            bool                        operator ==             (node const &);
+            bool                        operator !=             (node const &);
+            static std::size_t          release                 (node *);
+            static node *               copy                    (node *);
+                                        ~node                   () = default;
+            constexpr T const &         get_value               () const { return __v; }
+            T                           __v;
+            node *                      __p;
+            std::vector<node *>         __c{};
         };
         
-        std::vector<node*>      __nodes{};
-        size_type               __size{0};
+        std::vector<node *>              __nodes{};
+        size_type                       __size{0};
     };
     
 }
@@ -196,6 +228,9 @@ ms::tree<T, A>::const_iterator::const_iterator (const_iterator && c) : __stack{s
 
 template<class T, class A>
 ms::tree<T, A>::reverse_iterator::reverse_iterator(node * n, std::vector<node*>& r) : __rn{r}, __current{n} {}
+
+template<class T, class A>
+ms::tree<T, A>::const_reverse_iterator::const_reverse_iterator (node const * n, std::vector<node*> const & rn) : __rn{rn}, __current(n) { }
 
 template<class T, class A>
 bool ms::tree<T, A>::iterator::operator == (const iterator& r) const {
@@ -241,6 +276,39 @@ typename ms::tree<T, A>::reverse_iterator ms::tree<T, A>::reverse_iterator::pare
 }
 
 template<class T, class A>
+typename ms::tree<T, A>::const_reverse_iterator ms::tree<T, A>::const_reverse_iterator::operator++(int) {
+    auto t = *this;
+    ++(*this);
+    return t;
+}
+
+template<class T, class A>
+typename ms::tree<T, A>::const_reverse_iterator & ms::tree<T, A>::const_reverse_iterator::operator ++ () {
+    if(__current != nullptr) {
+        if(!__current->__c.empty()) {
+            __current = *(__current->__c.rbegin());
+        } else {
+            while(__current != nullptr) {
+                auto & nts = __current->__p != nullptr ? __current->__p->__c : __rn;
+                auto i = std::find(nts.begin(), nts.end(), __current);
+                if(i != nts.begin()) {
+                    __current = *(--i);
+                    break;
+                } else {
+                    __current = __current->__p;
+                }
+            }
+        }
+    }
+    return *this;
+}
+
+//template<class T, class A>
+//typename ms::tree<T, A>::const_reverse_iterator ms::tree<T, A>::const_reverse_iterator::parent () const {
+//    return reverse_iterator{__current != nullptr ? __current->__p : nullptr, __rn};
+//}
+
+template<class T, class A>
 typename ms::tree<T, A>::reverse_iterator ms::tree<T, A>::reverse_iterator::operator ++ (int) {
     auto t = *this;
     ++(*this);
@@ -283,6 +351,16 @@ typename ms::tree<T, A>::iterator::reference ms::tree<T, A>::iterator::operator 
 template<class T, class A>
 typename ms::tree<T, A>::iterator::pointer ms::tree<T, A>::iterator::operator -> () const {
     return &__stack.top()->__v;
+}
+
+template<class T, class A>
+typename ms::tree<T, A>::const_reverse_iterator::reference ms::tree<T, A>::const_reverse_iterator::operator * () const {
+    return this->__current->__v;
+}
+
+template<class T, class A>
+typename ms::tree<T, A>::const_reverse_iterator::pointer ms::tree<T, A>::const_reverse_iterator::operator -> () const {
+    return &__current->__v;
 }
 
 template<class T, class A>
@@ -336,6 +414,16 @@ bool ms::tree<T, A>::const_iterator::operator != (const const_iterator& r) const
 }
 
 template<class T, class A>
+bool ms::tree<T, A>::const_reverse_iterator::operator == (const const_reverse_iterator & r) const {
+    return __current == r.__current;
+}
+
+template<class T, class A>
+bool ms::tree<T, A>::const_reverse_iterator::operator != (const const_reverse_iterator & r) const {
+    return __current != r.__current;
+}
+
+template<class T, class A>
 bool ms::tree<T, A>::reverse_iterator::operator == (const reverse_iterator& r) const {
     return __current == r.__current;
 }
@@ -370,12 +458,32 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::end() {
 
 template<class T, class A>
 typename ms::tree<T, A>::reverse_iterator ms::tree<T, A>::rbegin() {
-    return reverse_iterator{__nodes.size() > 0 ? *__nodes.rbegin() : nullptr, __nodes};
+    return reverse_iterator{!__nodes.empty() ? *__nodes.rbegin() : nullptr, __nodes};
+}
+
+template<class T, class A>
+typename ms::tree<T, A>::const_reverse_iterator ms::tree<T, A>::rbegin() const {
+    return const_reverse_iterator{!__nodes.empty() ? *__nodes.rbegin() : nullptr, __nodes};
 }
 
 template<class T, class A>
 typename ms::tree<T, A>::reverse_iterator ms::tree<T, A>::rend() {
     return reverse_iterator{nullptr, __nodes};
+}
+
+template<class T, class A>
+typename ms::tree<T, A>::const_reverse_iterator ms::tree<T, A>::rend() const {
+    return const_reverse_iterator{nullptr, __nodes};
+}
+
+template<class T, class A>
+typename ms::tree<T, A>::const_reverse_iterator ms::tree<T, A>::crend () const {
+    return const_reverse_iterator{nullptr, __nodes};
+}
+
+template<class T, class A>
+typename ms::tree<T, A>::const_reverse_iterator ms::tree<T, A>::crbegin () const {
+    return const_reverse_iterator{!__nodes.empty() ? *__nodes.rbegin() : nullptr, __nodes};
 }
 
 template<class T, class A>

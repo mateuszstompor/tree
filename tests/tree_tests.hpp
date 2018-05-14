@@ -17,6 +17,7 @@ class aTreeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(testCopyConstructor);
     CPPUNIT_TEST(testCopyAssignment);
     CPPUNIT_TEST(testReverseIterator);
+    CPPUNIT_TEST(testConstReverseIterator);
     CPPUNIT_TEST(testParentReverseIterator);
     CPPUNIT_TEST_SUITE_END();
 public:
@@ -28,6 +29,7 @@ public:
     void testInsert4();
     void testSize();
     void testReverseIterator();
+    void testConstReverseIterator();
     void testConstIterator();
     void testParentReverseIterator();
     void testParentIterator();

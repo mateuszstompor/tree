@@ -243,6 +243,23 @@ void aTreeTest::testEquality() {
     CPPUNIT_ASSERT(*tree == *s_tree);
 }
 
+void aTreeTest::testConstReverseIterator() {
+    auto it = t_tree.crbegin();
+    CPPUNIT_ASSERT(it != t_tree.crend());
+    CPPUNIT_ASSERT(*t_tree.crbegin() == 3);
+    ++it;
+    CPPUNIT_ASSERT(*it == 2);
+    it++;
+    CPPUNIT_ASSERT(*it == 1);
+    CPPUNIT_ASSERT(*(++it) == 4);
+    CPPUNIT_ASSERT(*(++it) == 5);
+    CPPUNIT_ASSERT(*(++it) == 6);
+    CPPUNIT_ASSERT(*(++it) == 7);
+    CPPUNIT_ASSERT(*(++it) == 8);
+    CPPUNIT_ASSERT(++it == t_tree.crend());
+    CPPUNIT_ASSERT(++it == t_tree.crend());
+}
+
 void aTreeTest::testParentReverseIterator() {
     CPPUNIT_ASSERT(t_tree.begin().parent().parent() == t_tree.end());
 }
