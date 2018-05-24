@@ -7,7 +7,7 @@ using namespace ms;
 void aTreeTest::setUp() {
     tree = new ms::tree<int>{};
     s_tree = new ms::tree<int>{};
-    
+
     t_tree.insert_s(t_tree.end(), 1);
     t_tree.insert_c(t_tree.begin(), 0, 4);
     t_tree.insert_s(t_tree.end(), 2);
@@ -26,6 +26,7 @@ void aTreeTest::tearDown() {
 }
 
 void aTreeTest::testParentIterator() {
+//    t_tree.begin();
 //    CPPUNIT_ASSERT(t_tree.begin().parent() == t_tree.begin());
 //
 //    CPPUNIT_ASSERT((++t_tree.begin()).parent() == t_tree.begin());
@@ -61,12 +62,12 @@ void aTreeTest::testInsert() {
     CPPUNIT_ASSERT(*iterator2 == 2);
     ++iterator2;
     CPPUNIT_ASSERT(iterator2 == tree->end());
-    
+
     auto const_iter = tree->cbegin();
     CPPUNIT_ASSERT(const_iter != tree->cend());
     CPPUNIT_ASSERT(const_iter == tree->begin());
     CPPUNIT_ASSERT((const_iter != tree->begin()) == false);
-    
+
     auto itt = tree->insert_c(tree->begin(), 0, 4);
     CPPUNIT_ASSERT(*itt == 4);
     ++itt;
@@ -158,7 +159,7 @@ void aTreeTest::testInsert2() {
     CPPUNIT_ASSERT(*i == 2);
     ++i;
     CPPUNIT_ASSERT(i == tree->end());
-    
+
     auto beg = tree->begin();
     CPPUNIT_ASSERT(*beg == 1);
     beg++;
@@ -191,7 +192,7 @@ void aTreeTest::testInsert3() {
     tree->insert_c(++(++tree->begin()), 0, 5);
     tree->insert_s(tree->end(), 3);
     tree->insert_c(++(++tree->begin()), 1, 6);
-    
+
     auto i = tree->begin();
     CPPUNIT_ASSERT(*i == 1);
     CPPUNIT_ASSERT(*(++i) == 4);
@@ -298,7 +299,7 @@ void aTreeTest::testConstIterator() {
     auto it = tree->cbegin();
     it = it;
     CPPUNIT_ASSERT((tree->cbegin() != tree->cend()) == false);
-    
+
     auto i = t_tree.begin();
     CPPUNIT_ASSERT(*i == 1);
     CPPUNIT_ASSERT(*(++i) == 4);
