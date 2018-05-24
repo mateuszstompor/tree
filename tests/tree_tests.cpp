@@ -16,8 +16,6 @@ void aTreeTest::setUp() {
     t_tree.insert_c(++(++t_tree.begin()), 0, 6);
     auto const i = t_tree.insert_c(++(++(++t_tree.begin())), 0, 7);
     t_tree.insert_s(i, 8);
-    
-    
 }
 
 void aTreeTest::tearDown() {
@@ -26,29 +24,16 @@ void aTreeTest::tearDown() {
 }
 
 void aTreeTest::testParentIterator() {
-//    t_tree.begin();
-//    CPPUNIT_ASSERT(t_tree.begin().parent() == t_tree.begin());
-//
-//    CPPUNIT_ASSERT((++t_tree.begin()).parent() == t_tree.begin());
-//    CPPUNIT_ASSERT(t_tree.begin().parent().parent().parent() == t_tree.end());
-//    CPPUNIT_ASSERT(t_tree.begin().parent().parent()++ == t_tree.end());
-//    
-//    auto i = t_tree.begin();
-//    
-//    CPPUNIT_ASSERT(*i = 5);
-//    CPPUNIT_ASSERT(*i.parent() = 4);
-//    CPPUNIT_ASSERT(*i.parent().parent() = 1);
-//    
-//    auto z = i.parent();
-//    CPPUNIT_ASSERT(*z = 4);
-//    z++;
-//    CPPUNIT_ASSERT(*z == 5);
-//    ++z;
-//    CPPUNIT_ASSERT(*z == 2);
-//    ++z;
-//    CPPUNIT_ASSERT(*z == 3);
-//    ++z;
-//    CPPUNIT_ASSERT(z == 6);
+    t_tree.begin();
+    CPPUNIT_ASSERT(!t_tree.rbegin().has_parent());
+    CPPUNIT_ASSERT(t_tree.rbegin().parent() == t_tree.rbegin());
+
+    CPPUNIT_ASSERT(!t_tree.begin().has_parent());
+    CPPUNIT_ASSERT(t_tree.begin().parent() == t_tree.begin());
+
+    CPPUNIT_ASSERT((++t_tree.begin()).parent() == t_tree.begin());
+    CPPUNIT_ASSERT(t_tree.begin().parent().parent().parent() == t_tree.begin());
+    CPPUNIT_ASSERT(t_tree.begin().parent().parent()++ == t_tree.begin());
 }
 
 void aTreeTest::testInsert() {
@@ -75,7 +60,6 @@ void aTreeTest::testInsert() {
     ++itt;
     itt = itt;
     CPPUNIT_ASSERT(itt == tree->end());
-    
 }
 
 void aTreeTest::testCopyAssignment() {
@@ -186,12 +170,12 @@ void aTreeTest::testInsert2() {
 }
 
 void aTreeTest::testInsert3() {
-    tree->insert_s(tree->end(), 1);
-    tree->insert_c(tree->begin(), 0, 4);
-    tree->insert_s(tree->end(), 2);
-    tree->insert_c(++(++tree->begin()), 0, 5);
-    tree->insert_s(tree->end(), 3);
-    tree->insert_c(++(++tree->begin()), 1, 6);
+    CPPUNIT_ASSERT(*tree->insert_s(tree->end(), 1) == 1);
+    CPPUNIT_ASSERT(*tree->insert_c(tree->begin(), 0, 4) == 4);
+    CPPUNIT_ASSERT(*tree->insert_s(tree->end(), 2) == 2);
+    CPPUNIT_ASSERT(*tree->insert_c(++(++tree->begin()), 0, 5) == 5);
+    CPPUNIT_ASSERT(*tree->insert_s(tree->end(), 3) == 3);
+    CPPUNIT_ASSERT(*tree->insert_c(++(++tree->begin()), 1, 6) == 6);
 
     auto i = tree->begin();
     CPPUNIT_ASSERT(*i == 1);
@@ -202,7 +186,8 @@ void aTreeTest::testInsert3() {
 
 void aTreeTest::testDeletion() {
     CPPUNIT_ASSERT(tree->erase(tree->end()) == tree->end());
-    CPPUNIT_ASSERT(tree->erase(tree->insert_s(tree->begin(), 2)) == tree->end());
+    auto tmp = tree->erase(tree->insert_s(tree->begin(), 2));
+    CPPUNIT_ASSERT(tmp == tree->end());
     CPPUNIT_ASSERT(tree->size() == 0);
     auto i1 = tree->insert_s(tree->begin(), 2);
     CPPUNIT_ASSERT(*i1 == 2);
@@ -220,6 +205,7 @@ void aTreeTest::testDeletion() {
     CPPUNIT_ASSERT(tree->size() == 5);
     auto iterator = tree->cbegin();
     CPPUNIT_ASSERT(*iterator == 4);
+    CPPUNIT_ASSERT(*tree->erase(i5) == *i4);
 }
 
 void aTreeTest::testSize() {
@@ -263,8 +249,22 @@ void aTreeTest::testConstReverseIterator() {
     CPPUNIT_ASSERT(++it == t_tree.crend());
 }
 
-void aTreeTest::testParentReverseIterator() {
-    CPPUNIT_ASSERT(t_tree.begin().parent().parent() == t_tree.end());
+void aTreeTest::testConversion() {
+    ms::tree<int>::iterator b = t_tree.begin();
+    ms::tree<int>::const_iterator cb{b};
+
+    cb = b;
+    
+    ms::tree<int>::reverse_iterator r = t_tree.rbegin([](auto, auto){std::cout << "hello" << '\n';});
+    ms::tree<int>::const_reverse_iterator cr{r};
+    
+    ms::tree<int>::iterator p {r};
+    p = r;
+    cr = r;
+    
+    ms::tree<int>::reverse_iterator rr {p};
+    rr = p;
+    CPPUNIT_ASSERT(rr == p);
 }
 
 void aTreeTest::testReverseIterator() {
@@ -292,7 +292,6 @@ void aTreeTest::testReverseIterator() {
     CPPUNIT_ASSERT(*(--p) == 2);
     CPPUNIT_ASSERT(*(--p) == 3);
 }
-
 
 void aTreeTest::testConstIterator() {
     CPPUNIT_ASSERT(tree->cbegin() == tree->cend());
