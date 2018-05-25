@@ -130,15 +130,15 @@ namespace ms {
         tree &                          operator =              (tree &&);
         bool                            operator ==             (const tree &) const;
         bool                            operator !=             (const tree &) const;
-        iterator                        begin                   ();
-        const_iterator                  begin                   () const;
-        const_iterator                  cbegin                  () const;
+        iterator                        begin                   (typename iterator::lambda = [](auto, auto){});
+        const_iterator                  begin                   (typename const_iterator::lambda = [](auto, auto){}) const;
+        const_iterator                  cbegin                  (typename const_iterator::lambda = [](auto, auto){}) const;
         iterator                        end                     ();
         const_iterator                  end                     () const;
         const_iterator                  cend                    () const;
-        reverse_iterator                rbegin                  (typename reverse_iterator::lambda l = [](auto, auto){});
-        const_reverse_iterator          rbegin                  (typename const_reverse_iterator::lambda l = [](auto, auto){}) const;
-        const_reverse_iterator          crbegin                 (typename const_reverse_iterator::lambda l = [](auto, auto){}) const;
+        reverse_iterator                rbegin                  (typename reverse_iterator::lambda = [](auto, auto){});
+        const_reverse_iterator          rbegin                  (typename const_reverse_iterator::lambda = [](auto, auto){}) const;
+        const_reverse_iterator          crbegin                 (typename const_reverse_iterator::lambda = [](auto, auto){}) const;
         reverse_iterator                rend                    ();
         const_reverse_iterator          rend                    () const;
         const_reverse_iterator          crend                   () const;
@@ -397,7 +397,7 @@ typename ::ms::template tree<X>::node * ms::tree<T, A>::node::copy (node * n, st
 }
 
 template<class T, class A>
-typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (ms::tree<T, A>::const_iterator it, T const & value) {
+typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (const_iterator it, T const & value) {
     ++__size;
     if(it.__current == nullptr) {
         auto p = new node{std::move(value), nullptr};
@@ -430,24 +430,27 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (const_iterator it, T
 
 template<class T, class A>
 typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (const_iterator it, tree const & t) {
-    __size += t.__size;
-    if(it.__current == nullptr) {
-        for(auto n : t.__nodes)
-            __nodes.push_back(node::template copy<T>(n));
-        return _iterator<false>{__nodes.front(), it.__rn};
-    } else {
-        auto & ip = it.__current->__p != nullptr ? it.__current->__p->__c : __nodes;
-        auto index = std::find(ip.begin(), ip.end(), it.__current) - ip.begin();
-        auto i = t.__nodes.rbegin();
-        while(i != t.__nodes.rend()) {
-            auto n = node::template copy<T>(*i);
-            n->__p = it.__current->__p;
-            ip.insert(index + ip.begin(), n);
-            ++i;
+    if(this != &t) {
+        __size += t.__size;
+        if(it.__current == nullptr) {
+            for(auto n : t.__nodes)
+                __nodes.push_back(node::template copy<T>(n));
+            return _iterator<false>{__nodes.front(), it.__rn};
+        } else {
+            auto & ip = it.__current->__p != nullptr ? it.__current->__p->__c : __nodes;
+            auto index = std::find(ip.begin(), ip.end(), it.__current) - ip.begin();
+            auto i = t.__nodes.rbegin();
+            while(i != t.__nodes.rend()) {
+                auto n = node::template copy<T>(*i);
+                n->__p = it.__current->__p;
+                ip.insert(index + ip.begin(), n);
+                ++i;
+            }
+            return _iterator<false>{*(ip.begin() + index), it.__rn};
         }
-        return _iterator<false>{*(ip.begin() + index - t.__nodes.size()), it.__rn};
+    } else {
+        return end();
     }
-    return it;
 }
 
 template<class T, class A>
@@ -480,20 +483,23 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_c (const_iterator it, s
 
 template<class T, class A>
 typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_c (const_iterator it, size_type index, tree const & t) {
-    if(it.__current != nullptr) {
-        __size += t.__size;
-        auto parent = it.__current;
-        for(size_type i{0}; i < t.__nodes.size(); ++i) {
-            auto cp = node::template copy<T>(t.__nodes[i]);
-            cp->__p = parent;
-            parent->__c.insert(parent->__c.begin() + index + i, cp);
+    if(this != &t) {
+        if(it.__current != nullptr) {
+            __size += t.__size;
+            auto parent = it.__current;
+            for(size_type i{0}; i < t.__nodes.size(); ++i) {
+                auto cp = node::template copy<T>(t.__nodes[i]);
+                cp->__p = parent;
+                parent->__c.insert(parent->__c.begin() + index + i, cp);
+            }
+            _iterator<false> iter{*(parent->__c.begin() + index), it.__rn};
+            return iter;
+        } else {
+             return it;
         }
-        _iterator<false> iter{*(parent->__c.begin() + index), it.__rn};
-        return iter;
     } else {
-        return it;
+        return end();
     }
-    return it;
 }
 
 template<class T, class A>
@@ -577,18 +583,18 @@ typename ms::tree<T, A>::const_reverse_iterator ms::tree<T, A>::crend () const {
 }
 
 template<class T, class A>
-typename ms::tree<T, A>::iterator ms::tree<T, A>::begin () {
-    return iterator{!__nodes.empty() ? *__nodes.begin() : nullptr, __nodes};
+typename ms::tree<T, A>::iterator ms::tree<T, A>::begin (typename iterator::lambda l) {
+    return iterator{!__nodes.empty() ? *__nodes.begin() : nullptr, __nodes, l};
 }
 
 template<class T, class A>
-typename ms::tree<T, A>::const_iterator ms::tree<T, A>::begin () const {
-    return cbegin();
+typename ms::tree<T, A>::const_iterator ms::tree<T, A>::begin (typename const_iterator::lambda l) const {
+    return cbegin(l);
 }
 
 template<class T, class A>
-typename ms::tree<T, A>::const_iterator ms::tree<T, A>::cbegin () const {
-    return const_iterator{(!__nodes.empty() ? *__nodes.begin() : nullptr), const_cast<std::vector<node*> &>(__nodes)};
+typename ms::tree<T, A>::const_iterator ms::tree<T, A>::cbegin (typename const_iterator::lambda l) const {
+    return const_iterator{(!__nodes.empty() ? *__nodes.begin() : nullptr), const_cast<std::vector<node*> &>(__nodes), l};
 }
 
 template<class T, class A>

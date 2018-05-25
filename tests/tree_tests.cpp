@@ -283,6 +283,7 @@ void aTreeTest::testInsertTree() {
     t.insert_s(t.begin(), 2);
     CPPUNIT_ASSERT(t.size() == 1);
     t.insert_c(t.begin(), 0, t_tree);
+    CPPUNIT_ASSERT(t.insert_s(t.begin(), t) == t.end());
     CPPUNIT_ASSERT(t.size() == (t_tree.size() + 1));
     auto p = ++t.begin();
     auto p2 = t_tree.begin();
@@ -292,6 +293,7 @@ void aTreeTest::testInsertTree() {
     ms::tree<int> t2{};
     t2.insert_s(t2.begin(), t_tree);
     CPPUNIT_ASSERT(t2.size() == t_tree.size());
+    CPPUNIT_ASSERT(t2.insert_c(t2.begin(), 0, t2) == t2.end());
     auto b = t2.begin();
     p2 = t_tree.begin();
     while(p != t.end()) {
@@ -308,6 +310,11 @@ void aTreeTest::testInsertTree() {
     while(p2 != t.end()) {
         CPPUNIT_ASSERT(*(b++) == *(p2++));
     }
+    
+    CPPUNIT_ASSERT(t2.size() == 2 * t_tree.size());
+    auto i = t2.insert_c(t2.begin(), 0, t_tree);
+    CPPUNIT_ASSERT(*i == 1);
+    CPPUNIT_ASSERT(t2.size() == 3 * t_tree.size());
 }
 
 void aTreeTest::testReverseIterator() {
