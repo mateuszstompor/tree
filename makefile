@@ -1,4 +1,4 @@
-CXX = g++-7
+CXX = g++-8
 CXX_FLAGS = -Wall -Werror -std=c++1z
 BUILD_FOLDER = build
 MEMORY_DEBUG_FLAGS = -m32 -g -fno-inline -fno-omit-frame-pointer
