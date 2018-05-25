@@ -185,8 +185,8 @@ namespace ms {
 
 template<class T, class A>
 template<bool is_const, bool calls>
-template <bool D>
-ms::tree<T, A>::template _iterator<is_const, calls> & ms::tree<T, A>::template _iterator<is_const, calls>::operator = (_iterator<D, calls> const & rhs) {
+template<bool D>
+typename ms::tree<T, A>::template _iterator<is_const, calls> & ms::tree<T, A>::template _iterator<is_const, calls>::operator = (_iterator<D, calls> const & rhs) {
     static_assert(!(D == true && is_const == false), "required");
     __current = rhs.__current;
     __rn = rhs.__rn;
@@ -197,7 +197,7 @@ ms::tree<T, A>::template _iterator<is_const, calls> & ms::tree<T, A>::template _
 
 template<class T, class A>
 template<bool is_const, bool calls>
-ms::tree<T, A>::template _iterator<is_const, calls> & ms::tree<T, A>::template _iterator<is_const, calls>::operator = (_iterator const & rhs) {
+typename ms::tree<T, A>::template _iterator<is_const, calls> & ms::tree<T, A>::template _iterator<is_const, calls>::operator = (_iterator const & rhs) {
     __current = rhs.__current;
     __l = rhs.__l;
     __rn = rhs.__rn;
@@ -206,8 +206,8 @@ ms::tree<T, A>::template _iterator<is_const, calls> & ms::tree<T, A>::template _
 
 template<class T, class A>
 template<bool is_const, bool calls>
-template <bool D>
-ms::tree<T, A>::template _reverse_iterator<is_const, calls> & ms::tree<T, A>::template _reverse_iterator<is_const, calls>::operator = (_reverse_iterator<D, calls> const & rhs) {
+template<bool D>
+typename ms::tree<T, A>::template _reverse_iterator<is_const, calls> & ms::tree<T, A>::template _reverse_iterator<is_const, calls>::operator = (_reverse_iterator<D, calls> const & rhs) {
     static_assert(!(D == true && is_const == false), "required");
     __current = rhs.__current;
     __rn = rhs.__rn;
@@ -218,7 +218,7 @@ ms::tree<T, A>::template _reverse_iterator<is_const, calls> & ms::tree<T, A>::te
 
 template<class T, class A>
 template<bool is_const, bool calls>
-ms::tree<T, A>::template _reverse_iterator<is_const, calls> & ms::tree<T, A>::template _reverse_iterator<is_const, calls>::operator = (_reverse_iterator const & rhs) {
+typename ms::tree<T, A>::template _reverse_iterator<is_const, calls> & ms::tree<T, A>::template _reverse_iterator<is_const, calls>::operator = (_reverse_iterator const & rhs) {
     __current = rhs.__current;
     __l = rhs.__l;
     __rn = rhs.__rn;
@@ -406,7 +406,7 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (ms::tree<T, A>::cons
     } else {
         auto & ip = it.__current->__p != nullptr ? it.__current->__p->__c : __nodes;
         auto p = std::find(ip.begin(), ip.end(), it.__current);
-        auto n = ip.insert(p, new node{std::forward<T>(value), it.__current->__p});
+        auto n = ip.insert(p, new node{value, it.__current->__p});
         return _iterator<false>{*n, it.__rn};
     }
     return it;

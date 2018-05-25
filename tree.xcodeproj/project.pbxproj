@@ -245,6 +245,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = R78NEXF6E2;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = "";
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-I/usr/local/Cellar/cppunit/1.14.0/include\n-I/usr/local/Cellar/cppunit/1.14.0/include\n",
@@ -265,6 +266,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = R78NEXF6E2;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = "";
 				OTHER_CPLUSPLUSFLAGS = (
 					"$(OTHER_CFLAGS)",
 					"-I/usr/local/Cellar/cppunit/1.14.0/include\n-I/usr/local/Cellar/cppunit/1.14.0/include\n",
