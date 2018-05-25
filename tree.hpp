@@ -142,10 +142,12 @@ namespace ms {
         reverse_iterator                rend                    ();
         const_reverse_iterator          rend                    () const;
         const_reverse_iterator          crend                   () const;
-        iterator                        insert_s                (const_iterator, T &);
+        iterator                        insert_s                (const_iterator, T const &);
         iterator                        insert_s                (const_iterator, T &&);
-        iterator                        insert_c                (const_iterator, size_type, T &);
+        iterator                        insert_s                (const_iterator, tree const &);
+        iterator                        insert_c                (const_iterator, size_type, T const &);
         iterator                        insert_c                (const_iterator, size_type, T &&);
+        iterator                        insert_c                (const_iterator, size_type, tree const &);
         iterator                        erase                   (const_iterator);
         void                            clear                   ();
         void                            swap                    (tree &);
@@ -395,7 +397,7 @@ typename ::ms::template tree<X>::node * ms::tree<T, A>::node::copy (node * n, st
 }
 
 template<class T, class A>
-typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (ms::tree<T, A>::const_iterator it, T & value) {
+typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (ms::tree<T, A>::const_iterator it, T const & value) {
     ++__size;
     if(it.__current == nullptr) {
         auto p = new node{std::move(value), nullptr};
@@ -427,6 +429,28 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (const_iterator it, T
 }
 
 template<class T, class A>
+typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (const_iterator it, tree const & t) {
+    __size += t.__size;
+    if(it.__current == nullptr) {
+        for(auto n : t.__nodes)
+            __nodes.push_back(node::template copy<T>(n));
+        return _iterator<false>{__nodes.front(), it.__rn};
+    } else {
+        auto & ip = it.__current->__p != nullptr ? it.__current->__p->__c : __nodes;
+        auto index = std::find(ip.begin(), ip.end(), it.__current) - ip.begin();
+        auto i = t.__nodes.rbegin();
+        while(i != t.__nodes.rend()) {
+            auto n = node::template copy<T>(*i);
+            n->__p = it.__current->__p;
+            ip.insert(index + ip.begin(), n);
+            ++i;
+        }
+        return _iterator<false>{*(ip.begin() + index - t.__nodes.size()), it.__rn};
+    }
+    return it;
+}
+
+template<class T, class A>
 typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_c (const_iterator it, size_type index, T && value) {
     if(it.__current != nullptr) {
         ++__size;
@@ -441,12 +465,30 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_c (const_iterator it, s
 }
 
 template<class T, class A>
-typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_c (const_iterator it, size_type index, T & value) {
+typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_c (const_iterator it, size_type index, T const & value) {
     if(it.__current != nullptr) {
         ++__size;
         auto parent = it.__current;
-        auto t = parent->__c.insert(parent->__c.begin() + index, new node{std::move(value), parent});
+        auto t = parent->__c.insert(parent->__c.begin() + index, new node{value, parent});
         _iterator<false> iter{*t, it.__rn};
+        return iter;
+    } else {
+        return it;
+    }
+    return it;
+}
+
+template<class T, class A>
+typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_c (const_iterator it, size_type index, tree const & t) {
+    if(it.__current != nullptr) {
+        __size += t.__size;
+        auto parent = it.__current;
+        for(size_type i{0}; i < t.__nodes.size(); ++i) {
+            auto cp = node::template copy<T>(t.__nodes[i]);
+            cp->__p = parent;
+            parent->__c.insert(parent->__c.begin() + index + i, cp);
+        }
+        _iterator<false> iter{*(parent->__c.begin() + index), it.__rn};
         return iter;
     } else {
         return it;

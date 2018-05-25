@@ -277,6 +277,39 @@ void aTreeTest::testTreeConversionConstructor() {
     CPPUNIT_ASSERT(ti == t_tree);
 }
 
+void aTreeTest::testInsertTree() {
+    ms::tree<int> t{};
+    CPPUNIT_ASSERT(t.size() == 0);
+    t.insert_s(t.begin(), 2);
+    CPPUNIT_ASSERT(t.size() == 1);
+    t.insert_c(t.begin(), 0, t_tree);
+    CPPUNIT_ASSERT(t.size() == (t_tree.size() + 1));
+    auto p = ++t.begin();
+    auto p2 = t_tree.begin();
+    while(p != t.end()) {
+        CPPUNIT_ASSERT(*(p++) == *(p2++));
+    }
+    ms::tree<int> t2{};
+    t2.insert_s(t2.begin(), t_tree);
+    CPPUNIT_ASSERT(t2.size() == t_tree.size());
+    auto b = t2.begin();
+    p2 = t_tree.begin();
+    while(p != t.end()) {
+        CPPUNIT_ASSERT(*(b++) == *(p2++));
+    }
+    t2.insert_s(t2.begin(), t_tree);
+    CPPUNIT_ASSERT(t2.size() == 2 * t_tree.size());
+    b = t2.begin();
+    p2 = t_tree.begin();
+    while(p2 != t.end()) {
+        CPPUNIT_ASSERT(*(b++) == *(p2++));
+    }
+    p2 = t_tree.begin();
+    while(p2 != t.end()) {
+        CPPUNIT_ASSERT(*(b++) == *(p2++));
+    }
+}
+
 void aTreeTest::testReverseIterator() {
     auto it = t_tree.rbegin();
     CPPUNIT_ASSERT((--it) == t_tree.rbegin());
