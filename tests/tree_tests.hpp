@@ -19,6 +19,7 @@ class aTreeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(testReverseIterator);
     CPPUNIT_TEST(testConstReverseIterator);
     CPPUNIT_TEST(testConversion);
+    CPPUNIT_TEST(testTreeConversionConstructor);
     CPPUNIT_TEST_SUITE_END();
 public:
     void setUp();
@@ -38,6 +39,7 @@ public:
     void testEquality();
     void testEmptiness();
     void testConversion();
+    void testTreeConversionConstructor();
 private:
     ms::tree<int>* tree;
     ms::tree<int>* s_tree;

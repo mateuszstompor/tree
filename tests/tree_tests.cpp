@@ -267,6 +267,16 @@ void aTreeTest::testConversion() {
     CPPUNIT_ASSERT(rr == p);
 }
 
+void aTreeTest::testTreeConversionConstructor() {
+    
+    auto f = [](int const & a) -> float { return a; };
+    auto i = [](float const & a) -> int { return a; };
+    ms::tree<float> tf{t_tree, static_cast<std::function<float(int const &)>>(f)};
+    ms::tree<int> ti{tf, static_cast<std::function<int(float const &)>>(i)};
+
+    CPPUNIT_ASSERT(ti == t_tree);
+}
+
 void aTreeTest::testReverseIterator() {
     auto it = t_tree.rbegin();
     CPPUNIT_ASSERT((--it) == t_tree.rbegin());

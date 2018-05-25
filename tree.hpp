@@ -13,6 +13,10 @@ namespace ms {
     template <class T, class A = std::allocator<T>>
     class tree {
         struct node;
+        
+        template<class X, class Y>
+        friend class tree;
+        
     public:
         
         enum class depth_change {
@@ -34,13 +38,13 @@ namespace ms {
             friend class tree;
         public:
             
-            using value_type    = typename A::value_type;
-            using reference     = typename std::conditional_t<is_const, T const &, T &>;
-            using pointer       = typename std::conditional_t<is_const, T const *, T *>;
-            using node_ptr      = node *;
-            using vec_ref       = std::vector<node *> &;
-            using lambda        = std::function<void(depth_change, pointer)>;
-            typedef std::forward_iterator_tag       iterator_category;
+            using value_type            = typename A::value_type;
+            using reference             = typename std::conditional_t<is_const, T const &, T &>;
+            using pointer               = typename std::conditional_t<is_const, T const *, T *>;
+            using node_ptr              = node *;
+            using vec_ref               = std::vector<node *> &;
+            using lambda                = std::function<void(depth_change, pointer)>;
+            using iterator_category     = std::forward_iterator_tag;
             
                                         _reverse_iterator       (_iterator<is_const, calls_on_hierarchy_change> const &);
                                         _reverse_iterator       (_reverse_iterator const &) = default;
@@ -81,7 +85,7 @@ namespace ms {
             using node_ptr              = node *;
             using vec_ref               = std::vector<node *> &;
             using lambda                = std::function<void(depth_change, pointer)>;
-            typedef std::forward_iterator_tag       iterator_category;
+            using iterator_category     = std::forward_iterator_tag;
             
                                         _iterator               (_reverse_iterator<is_const, calls_on_hierarchy_change> const &);
                                         _iterator               (_iterator const &) = default;
@@ -119,6 +123,8 @@ namespace ms {
                                         tree                    () = default;
                                         tree                    (const tree &);
                                         tree                    (tree &&);
+        template <class U>
+                                        tree                    (tree<U> const &, std::function<T(U const &)>);
                                         ~tree                   ();
         tree &                          operator =              (const tree &);
         tree &                          operator =              (tree &&);
@@ -159,7 +165,9 @@ namespace ms {
             bool                        operator ==             (node const &);
             bool                        operator !=             (node const &);
             static size_type            release                 (node *);
-            static node *               copy                    (node *);
+            
+            template <class X> static typename
+            ms::tree<X>::node *         copy                    (node * n, std::function<X(T const &)> l = [](auto a){return a;});
                                         ~node                   () = default;
             constexpr T const &         get_value               () const { return __v; }
             T                           __v;
@@ -289,10 +297,18 @@ ms::tree<T, A>::tree (tree && t) : __nodes{t.__nodes}, __size{t.__size} {
 }
 
 template<class T, class A>
+template <class U>
+ms::tree<T, A>::tree (tree<U> const & t, std::function<T(U const &)> l) {
+    __nodes.resize(t.__nodes.size());
+    for(size_type i{0}; i < t.__nodes.size(); ++i)
+        __nodes[i] = tree<U>::node::template copy<T>(t.__nodes[i], l);
+}
+
+template<class T, class A>
 ms::tree<T, A>::tree (const tree & t) : __size{t.__size} {
     __nodes.resize(t.__nodes.size());
     for(size_type i{0}; i < t.__nodes.size(); ++i)
-        __nodes[i] = node::copy(t.__nodes[i]);
+        __nodes[i] = node::template copy<T>(t.__nodes[i]);
 }
 
 template<class T, class A>
@@ -328,7 +344,7 @@ typename ms::tree<T, A>::tree & ms::tree<T, A>::operator = (const tree & t) {
     std::for_each(__nodes.begin(), __nodes.end(), [](auto n){ node::release(n); });
     __nodes.resize(t.__nodes.size());
     for(size_type i{0}; i < __nodes.size(); ++i)
-        __nodes[i] = node::copy(t.__nodes[i]);
+        __nodes[i] = node::template copy<T>(t.__nodes[i]);
     return *this;
 }
 
@@ -365,12 +381,14 @@ typename ms::tree<T, A>::size_type ms::tree<T, A>::node::release(node * n) {
     return s + 1;
 }
 
+
 template<class T, class A>
-typename ms::tree<T, A>::node* ms::tree<T, A>::node::copy(node * n) {
-    auto new_node = new node{n->__v, nullptr};
+template <class X>
+typename ::ms::template tree<X>::node * ms::tree<T, A>::node::copy (node * n, std::function<X(T const &)> l) {
+    auto new_node = new typename ms::tree<X>::node{l(n->__v), nullptr};
     new_node->__c.resize(n->__c.size());
     for(size_type i{0}; i < n->__c.size(); ++i) {
-        new_node->__c[i] = copy(n->__c[i]);
+        new_node->__c[i] = copy<X>(n->__c[i], l);
         new_node->__c[i]->__p = new_node;
     }
     return new_node;
