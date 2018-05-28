@@ -742,7 +742,7 @@ bool ms::tree<T, A>::_iterator<is_const, calls>::operator != (_iterator const & 
 
 template<class T, class A>
 template<bool is_const, bool calls>
-ms::tree<T, A>::_iterator<is_const, calls> & ms::tree<T, A>::_iterator<is_const, calls>::operator ++ () {
+typename ms::tree<T, A>::template _iterator<is_const, calls> & ms::tree<T, A>::_iterator<is_const, calls>::operator ++ () {
     if(__current != nullptr) {
         if(!__current->__c.empty()) {
             __current = *(__current->__c.begin());
