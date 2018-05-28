@@ -331,7 +331,7 @@ bool ms::tree<T, A>::operator != (const tree& rhs) const {
 }
 
 template<class T, class A>
-typename ms::tree<T, A>::tree & ms::tree<T, A>::operator = (tree && t) {
+typename ms::tree<T, A> & ms::tree<T, A>::operator = (tree && t) {
     std::for_each(__nodes.begin(), __nodes.end(), [](auto n){ node::release(n); });
     __nodes.clear();
     __nodes.insert(__nodes.begin(), t.__nodes.begin(), t.__nodes.end());
@@ -341,7 +341,7 @@ typename ms::tree<T, A>::tree & ms::tree<T, A>::operator = (tree && t) {
 }
 
 template<class T, class A>
-typename ms::tree<T, A>::tree & ms::tree<T, A>::operator = (const tree & t) {
+typename ms::tree<T, A> & ms::tree<T, A>::operator = (const tree & t) {
     __size = t.__size;
     std::for_each(__nodes.begin(), __nodes.end(), [](auto n){ node::release(n); });
     __nodes.resize(t.__nodes.size());
