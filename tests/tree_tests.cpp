@@ -284,6 +284,13 @@ void aTreeTest::testLambdaCalls() {
     f.insert_s(f.begin(), 1);
     f.insert_c(f.begin(), 0, 11);
     f.insert_c(f.begin(), 1, 12);
+    CPPUNIT_ASSERT(f.begin().has_right_sibling());
+    CPPUNIT_ASSERT(!f.rbegin().has_right_sibling());
+    CPPUNIT_ASSERT(f.rbegin().has_left_sibling());
+    CPPUNIT_ASSERT(f.begin().right_sibling().has_right_sibling());
+    CPPUNIT_ASSERT(!f.begin().right_sibling().right_sibling().has_right_sibling());
+    CPPUNIT_ASSERT(f.begin().right_sibling().right_sibling().has_left_sibling());
+    CPPUNIT_ASSERT(!f.begin().has_left_sibling());
     f.insert_c(f.begin().right_sibling(), 0, 22);
     f.insert_c(f.begin().right_sibling(), 1, 23);
     f.insert_c(f.begin().right_sibling().right_sibling(), 0, 33);

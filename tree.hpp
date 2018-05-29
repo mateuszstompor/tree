@@ -17,6 +17,17 @@ namespace ms {
         template<class X, class Y>
         friend class tree;
         
+        enum class sibling {
+            left,
+            right
+        };
+        
+        template<class D>
+        static D                        get_sibling             (D, sibling);
+        
+        template<class D>
+        static bool                     has_sibling             (D, sibling);
+        
     public:
         
         enum class depth_change {
@@ -24,10 +35,7 @@ namespace ms {
             down
         };
         
-        enum class sibling {
-            left,
-            right
-        };
+        
         
         template<bool is_const, bool calls_on_hierarchy_change>
         class _iterator;
@@ -69,6 +77,10 @@ namespace ms {
             pointer                     operator ->             () const;
             _reverse_iterator           parent                  () const;
             bool                        has_parent              () const;
+            _reverse_iterator           left_sibling            () const;
+            bool                        has_left_sibling        () const;
+            _reverse_iterator           right_sibling           () const;
+            bool                        has_right_sibling       () const;
             _reverse_iterator           child                   (size_type) const;
             size_type                   children_amount         () const;
             
@@ -118,8 +130,6 @@ namespace ms {
             size_type                   children_amount         () const;
 
         private:
-            _iterator                   get_sibling             (sibling) const;
-            bool                        has_sibling             (sibling) const;
                                         _iterator               (node_ptr, vec_ref, lambda = [](auto, auto){});
             vec_ref                     __rn;
             node_ptr                    __current;
@@ -192,6 +202,29 @@ namespace ms {
         size_type                       __size{0};
     };
     
+}
+
+template<class T, class A>
+template<class __iterator_class>
+bool ms::tree<T, A>::has_sibling (__iterator_class it, sibling s) {
+    if(it.__current != nullptr) {
+        auto v = it.__current->__p == nullptr ? it.__rn : it.__current->__p->__c;
+        auto i = std::find(v.begin(), v.end(), it.__current) - v.begin();
+        return s == sibling::left ? i > 0 : i < v.size() - 1;
+    }
+    return false;
+}
+
+template<class T, class A>
+template<class __iterator_class>
+__iterator_class ms::tree<T, A>::get_sibling (__iterator_class it, sibling s) {
+    if(it.__current != nullptr) {
+        auto v = it.__current->__p == nullptr ? it.__rn : it.__current->__p->__c;
+        auto i = std::find(v.begin(), v.end(), it.__current);
+        return __iterator_class{*(s == sibling::left ? --i : ++i), it.__rn, it.__l};
+    } else {
+        return it;
+    }
 }
 
 template<class T, class A>
@@ -647,49 +680,50 @@ typename ms::tree<T, A>::template _iterator<is_const, calls> ms::tree<T, A>::_it
 
 template<class T, class A>
 template<bool is_const, bool calls>
-typename ms::tree<T, A>::template _iterator<is_const, calls> ms::tree<T, A>::_iterator<is_const, calls>::get_sibling (sibling s) const {
-    if(__current != nullptr) {
-        auto v = __current->__p == nullptr ? __rn : __current->__p->__c;
-        auto i = std::find(v.begin(), v.end(), __current);
-        return _iterator{*(s == sibling::left ? --i : ++i), __rn, __l};
-    } else {
-        return *this;
-    }
-}
-
-template<class T, class A>
-template<bool is_const, bool calls>
-bool ms::tree<T, A>::_iterator<is_const, calls>::has_sibling (sibling s) const {
-    if(__current != nullptr) {
-        auto v = __current->__p == nullptr ? __rn : __current->__p->__c;
-        auto i = std::find(v.begin(), v.end(), __current);
-        return *(s == sibling::left ? --i : ++i) != __current;
-    }
-    return false;
-}
-
-template<class T, class A>
-template<bool is_const, bool calls>
 bool ms::tree<T, A>::_iterator<is_const, calls>::has_left_sibling () const {
-    return get_sibling(sibling::left);
+    return ms::tree<T, A>::has_sibling(*this, sibling::left);
+}
+
+template<class T, class A>
+template<bool is_const, bool calls>
+bool ms::tree<T, A>::_reverse_iterator<is_const, calls>::has_left_sibling () const {
+    return ms::tree<T, A>::has_sibling(*this, sibling::left);
 }
 
 template<class T, class A>
 template<bool is_const, bool calls>
 typename ms::tree<T, A>::template _iterator<is_const, calls> ms::tree<T, A>::_iterator<is_const, calls>::right_sibling () const {
-    return get_sibling(sibling::right);
+    return ms::tree<T, A>::get_sibling(*this, sibling::right);
 }
 
 template<class T, class A>
 template<bool is_const, bool calls>
 typename ms::tree<T, A>::template _iterator<is_const, calls> ms::tree<T, A>::_iterator<is_const, calls>::left_sibling () const {
-    return get_sibling(sibling::left);
+    return ms::tree<T, A>::get_sibling(*this, sibling::left);
+}
+
+template<class T, class A>
+template<bool is_const, bool calls>
+typename ms::tree<T, A>::template _reverse_iterator<is_const, calls> ms::tree<T, A>::_reverse_iterator<is_const, calls>::right_sibling () const {
+    return ms::tree<T, A>::get_sibling(*this, sibling::right);
+}
+
+template<class T, class A>
+template<bool is_const, bool calls>
+typename ms::tree<T, A>::template _reverse_iterator<is_const, calls> ms::tree<T, A>::_reverse_iterator<is_const, calls>::left_sibling () const {
+    return ms::tree<T, A>::get_sibling(*this, sibling::left);
 }
 
 template<class T, class A>
 template<bool is_const, bool calls>
 bool ms::tree<T, A>::_iterator<is_const, calls>::has_right_sibling () const {
-    return get_sibling(sibling::right);
+    return ms::tree<T, A>::has_sibling(*this, sibling::right);
+}
+
+template<class T, class A>
+template<bool is_const, bool calls>
+bool ms::tree<T, A>::_reverse_iterator<is_const, calls>::has_right_sibling () const {
+    return ms::tree<T, A>::has_sibling(*this, sibling::right);
 }
 
 template<class T, class A>
