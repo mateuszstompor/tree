@@ -24,6 +24,11 @@ namespace ms {
             down
         };
         
+        enum class sibling {
+            left,
+            right
+        };
+        
         template<bool is_const, bool calls_on_hierarchy_change>
         class _iterator;
         
@@ -43,7 +48,7 @@ namespace ms {
             using pointer               = typename std::conditional_t<is_const, T const *, T *>;
             using node_ptr              = node *;
             using vec_ref               = std::vector<node *> &;
-            using lambda                = std::function<void(depth_change, pointer)>;
+            using lambda                = std::function<void(depth_change, _reverse_iterator)>;
             using iterator_category     = std::forward_iterator_tag;
             
                                         _reverse_iterator       (_iterator<is_const, calls_on_hierarchy_change> const &);
@@ -71,7 +76,7 @@ namespace ms {
                                         _reverse_iterator       (node_ptr, vec_ref, lambda = [](auto, auto){});
             vec_ref                     __rn;
             node_ptr                    __current;
-            lambda                      __l;
+            lambda                      __l{[](auto, auto){}};
         };
         
         template<bool is_const = false, bool calls_on_hierarchy_change = true>
@@ -84,7 +89,7 @@ namespace ms {
             using pointer               = typename std::conditional_t<is_const, T const *, T *>;
             using node_ptr              = node *;
             using vec_ref               = std::vector<node *> &;
-            using lambda                = std::function<void(depth_change, pointer)>;
+            using lambda                = std::function<void(depth_change, _iterator)>;
             using iterator_category     = std::forward_iterator_tag;
             
                                         _iterator               (_reverse_iterator<is_const, calls_on_hierarchy_change> const &);
@@ -105,14 +110,20 @@ namespace ms {
             pointer                     operator ->             () const;
             _iterator                   parent                  () const;
             bool                        has_parent              () const;
+            _iterator                   left_sibling            () const;
+            bool                        has_left_sibling        () const;
+            _iterator                   right_sibling           () const;
+            bool                        has_right_sibling       () const;
             _iterator                   child                   (size_type) const;
             size_type                   children_amount         () const;
 
         private:
+            _iterator                   get_sibling             (sibling) const;
+            bool                        has_sibling             (sibling) const;
                                         _iterator               (node_ptr, vec_ref, lambda = [](auto, auto){});
             vec_ref                     __rn;
             node_ptr                    __current;
-            lambda                      __l;
+            lambda                      __l{[](auto, auto){}};
         };
         
         using iterator                  = _iterator<false>;
@@ -190,8 +201,6 @@ typename ms::tree<T, A>::template _iterator<is_const, calls> & ms::tree<T, A>::t
     static_assert(!(D == true && is_const == false), "required");
     __current = rhs.__current;
     __rn = rhs.__rn;
-    if constexpr (is_const == D)
-        __l = rhs.__l;
     return *this;
 }
 
@@ -199,7 +208,6 @@ template<class T, class A>
 template<bool is_const, bool calls>
 typename ms::tree<T, A>::template _iterator<is_const, calls> & ms::tree<T, A>::template _iterator<is_const, calls>::operator = (_iterator const & rhs) {
     __current = rhs.__current;
-    __l = rhs.__l;
     __rn = rhs.__rn;
     return *this;
 }
@@ -211,8 +219,6 @@ typename ms::tree<T, A>::template _reverse_iterator<is_const, calls> & ms::tree<
     static_assert(!(D == true && is_const == false), "required");
     __current = rhs.__current;
     __rn = rhs.__rn;
-    if constexpr (is_const == D)
-        __l = rhs.__l;
     return *this;
 }
 
@@ -220,7 +226,6 @@ template<class T, class A>
 template<bool is_const, bool calls>
 typename ms::tree<T, A>::template _reverse_iterator<is_const, calls> & ms::tree<T, A>::template _reverse_iterator<is_const, calls>::operator = (_reverse_iterator const & rhs) {
     __current = rhs.__current;
-    __l = rhs.__l;
     __rn = rhs.__rn;
     return *this;
 }
@@ -232,11 +237,11 @@ ms::tree<T, A>::template _iterator<is_const, calls>::_iterator (_iterator<D, cal
 
 template<class T, class A>
 template<bool is_const, bool calls>
-ms::tree<T, A>::template _iterator<is_const, calls>::_iterator (_reverse_iterator<is_const, calls> const & rhs) : __rn{rhs.__rn}, __current{rhs.__current}, __l{rhs.__l} { }
+ms::tree<T, A>::template _iterator<is_const, calls>::_iterator (_reverse_iterator<is_const, calls> const & rhs) : __rn{rhs.__rn}, __current{rhs.__current} { }
 
 template<class T, class A>
 template<bool is_const, bool calls>
-ms::tree<T, A>::template _reverse_iterator<is_const, calls>::_reverse_iterator (_iterator<is_const, calls> const & rhs) : __rn{rhs.__rn}, __current{rhs.__current}, __l{rhs.__l} { }
+ms::tree<T, A>::template _reverse_iterator<is_const, calls>::_reverse_iterator (_iterator<is_const, calls> const & rhs) : __rn{rhs.__rn}, __current{rhs.__current} { }
 
 template<class T, class A>
 template<bool is_const, bool calls>
@@ -263,10 +268,15 @@ typename ms::tree<T, A>::template _reverse_iterator<is_const, calls> & ms::tree<
         auto i = std::find(nts.rbegin(), nts.rend(), __current);
         if(i == nts.rbegin()) {
             __current = __current->__p;
+            if constexpr (calls) {
+                __l(tree<T, A>::depth_change::up, *this);
+            }
         } else {
             __current = *(--i);
-            while(!__current->__c.empty())
+            while(!__current->__c.empty()) {
                 __current = *__current->__c.begin();
+                __l(tree<T, A>::depth_change::down, *this);
+            }
         }
     }
     return *this;
@@ -279,15 +289,20 @@ typename ms::tree<T, A>::template _iterator<is_const, calls> & ms::tree<T, A>::_
         __current = !__rn.empty() ? *__rn.rbegin() : nullptr;
         while(!__current->__c.empty())
             __current = *__current->__c.rbegin();
-    } else if (__current != *__rn.rbegin()) {
+    } else if (__current != *__rn.begin()){
         auto & nts = __current->__p != nullptr ? __current->__p->__c : __rn;
         auto i = std::find(nts.begin(), nts.end(), __current);
         if(i == nts.begin()) {
             __current = __current->__p;
+            if constexpr (calls) {
+                __l(tree<T, A>::depth_change::up, *this);
+            }
         } else {
             __current = *(--i);
-            while(!__current->__c.empty())
+            while(!__current->__c.empty()) {
                 __current = *__current->__c.rbegin();
+                __l(tree<T, A>::depth_change::down, *this);
+            }
         }
     }
     return *this;
@@ -632,6 +647,53 @@ typename ms::tree<T, A>::template _iterator<is_const, calls> ms::tree<T, A>::_it
 
 template<class T, class A>
 template<bool is_const, bool calls>
+typename ms::tree<T, A>::template _iterator<is_const, calls> ms::tree<T, A>::_iterator<is_const, calls>::get_sibling (sibling s) const {
+    if(__current != nullptr) {
+        auto v = __current->__p == nullptr ? __rn : __current->__p->__c;
+        auto i = std::find(v.begin(), v.end(), __current);
+        return _iterator{*(s == sibling::left ? --i : ++i), __rn, __l};
+    } else {
+        return *this;
+    }
+}
+
+template<class T, class A>
+template<bool is_const, bool calls>
+bool ms::tree<T, A>::_iterator<is_const, calls>::has_sibling (sibling s) const {
+    if(__current != nullptr) {
+        auto v = __current->__p == nullptr ? __rn : __current->__p->__c;
+        auto i = std::find(v.begin(), v.end(), __current);
+        return *(s == sibling::left ? --i : ++i) != __current;
+    }
+    return false;
+}
+
+template<class T, class A>
+template<bool is_const, bool calls>
+bool ms::tree<T, A>::_iterator<is_const, calls>::has_left_sibling () const {
+    return get_sibling(sibling::left);
+}
+
+template<class T, class A>
+template<bool is_const, bool calls>
+typename ms::tree<T, A>::template _iterator<is_const, calls> ms::tree<T, A>::_iterator<is_const, calls>::right_sibling () const {
+    return get_sibling(sibling::right);
+}
+
+template<class T, class A>
+template<bool is_const, bool calls>
+typename ms::tree<T, A>::template _iterator<is_const, calls> ms::tree<T, A>::_iterator<is_const, calls>::left_sibling () const {
+    return get_sibling(sibling::left);
+}
+
+template<class T, class A>
+template<bool is_const, bool calls>
+bool ms::tree<T, A>::_iterator<is_const, calls>::has_right_sibling () const {
+    return get_sibling(sibling::right);
+}
+
+template<class T, class A>
+template<bool is_const, bool calls>
 typename ms::tree<T, A>::template _reverse_iterator<is_const, calls> ms::tree<T, A>::_reverse_iterator<is_const, calls>::parent () const {
     return _reverse_iterator{__current != nullptr ? (__current->__p != nullptr ? __current->__p : __current) : __current, __rn};
 }
@@ -697,7 +759,7 @@ typename ms::tree<T, A>::template _reverse_iterator<is_const, calls> & ms::tree<
         if(!__current->__c.empty()) {
             __current = *(__current->__c.rbegin());
             if constexpr (calls)
-                __l(tree<T, A>::depth_change::down, &__current->__v);
+                __l(tree<T, A>::depth_change::down, *this);
         } else {
             while(__current != nullptr) {
                 auto & nts = __current->__p != nullptr ? __current->__p->__c : __rn;
@@ -707,8 +769,11 @@ typename ms::tree<T, A>::template _reverse_iterator<is_const, calls> & ms::tree<
                     break;
                 } else {
                     __current = __current->__p;
-                    if constexpr (calls)
-                        __l(tree<T, A>::depth_change::up, &__current->__v);
+                    if constexpr (calls) {
+                        if(__current != nullptr)
+                            __l(tree<T, A>::depth_change::up, *this);
+                    }
+                        
                 }
             }
         }
@@ -747,7 +812,7 @@ typename ms::tree<T, A>::template _iterator<is_const, calls> & ms::tree<T, A>::_
         if(!__current->__c.empty()) {
             __current = *(__current->__c.begin());
             if constexpr (calls)
-                __l(tree<T, A>::depth_change::down, &__current->__v);
+                __l(tree<T, A>::depth_change::down, *this);
         } else {
             while(__current != nullptr) {
                 auto & nts = __current->__p != nullptr ? __current->__p->__c : __rn;
@@ -757,8 +822,10 @@ typename ms::tree<T, A>::template _iterator<is_const, calls> & ms::tree<T, A>::_
                     break;
                 } else {
                     __current = __current->__p;
-                    if constexpr (calls)
-                        __l(tree<T, A>::depth_change::up, &__current->__v);
+                    if constexpr (calls) {
+                        if(__current != nullptr)
+                            __l(tree<T, A>::depth_change::up, *this);
+                    }
                 }
             }
         }

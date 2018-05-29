@@ -20,6 +20,7 @@ class aTreeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(testConstReverseIterator);
     CPPUNIT_TEST(testConversion);
     CPPUNIT_TEST(testInsertTree);
+    CPPUNIT_TEST(testLambdaCalls);
     CPPUNIT_TEST(testTreeConversionConstructor);
     CPPUNIT_TEST_SUITE_END();
 public:
@@ -38,6 +39,7 @@ public:
     void testCopyAssignment();
     void testDeletion();
     void testEquality();
+    void testLambdaCalls();
     void testEmptiness();
     void testConversion();
     void testInsertTree();

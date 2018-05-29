@@ -277,6 +277,118 @@ void aTreeTest::testTreeConversionConstructor() {
     CPPUNIT_ASSERT(ti == t_tree);
 }
 
+void aTreeTest::testLambdaCalls() {
+    ::tree<int> f;
+    f.insert_s(f.begin(), 3);
+    f.insert_s(f.begin(), 2);
+    f.insert_s(f.begin(), 1);
+    f.insert_c(f.begin(), 0, 11);
+    f.insert_c(f.begin(), 1, 12);
+    f.insert_c(f.begin().right_sibling(), 0, 22);
+    f.insert_c(f.begin().right_sibling(), 1, 23);
+    f.insert_c(f.begin().right_sibling().right_sibling(), 0, 33);
+    f.insert_c(f.begin().right_sibling().right_sibling(), 1, 34);
+    {
+        int i{0};
+        auto it = f.begin([&](auto a, auto b){
+            if(a == ::tree<int>::depth_change::down) {
+                i+=1;
+            } else {
+                i-=1;
+            }
+        });
+        CPPUNIT_ASSERT(i == 0);
+        CPPUNIT_ASSERT(*it == 1);
+        ++it;
+        CPPUNIT_ASSERT(i == 1);
+        CPPUNIT_ASSERT(*it == 11);
+        --it;
+        CPPUNIT_ASSERT(i == 0);
+        CPPUNIT_ASSERT(*it == 1);
+        ++it;
+        CPPUNIT_ASSERT(i == 1);
+        CPPUNIT_ASSERT(*it == 11);
+        ++it;
+        CPPUNIT_ASSERT(i == 1);
+        CPPUNIT_ASSERT(*it == 12);
+        ++it;
+        CPPUNIT_ASSERT(i == 0);
+        CPPUNIT_ASSERT(*it == 2);
+        ++it;
+        CPPUNIT_ASSERT(i == 1);
+        CPPUNIT_ASSERT(*it == 22);
+        ++it;
+        CPPUNIT_ASSERT(i == 1);
+        CPPUNIT_ASSERT(*it == 23);
+        ++it;
+        CPPUNIT_ASSERT(i == 0);
+        CPPUNIT_ASSERT(*it == 3);
+        ++it;
+        CPPUNIT_ASSERT(i == 1);
+        CPPUNIT_ASSERT(*it == 33);
+        ++it;
+        CPPUNIT_ASSERT(i == 1);
+        CPPUNIT_ASSERT(*it == 34);
+
+        --it;
+        CPPUNIT_ASSERT(*it == 33);
+        CPPUNIT_ASSERT(i == 1);
+        --it;
+        CPPUNIT_ASSERT(*it == 3);
+        CPPUNIT_ASSERT(i == 0);
+        --it;
+        CPPUNIT_ASSERT(*it == 23);
+        CPPUNIT_ASSERT(i == 1);
+        --it;
+        CPPUNIT_ASSERT(*it == 22);
+        CPPUNIT_ASSERT(i == 1);
+        --it;
+        CPPUNIT_ASSERT(*it == 2);
+        CPPUNIT_ASSERT(i == 0);
+        --it;
+        CPPUNIT_ASSERT(*it == 12);
+        CPPUNIT_ASSERT(i == 1);
+        --it;
+        CPPUNIT_ASSERT(*it == 11);
+        CPPUNIT_ASSERT(i == 1);
+        --it;
+        CPPUNIT_ASSERT(*it == 1);
+        CPPUNIT_ASSERT(i == 0);
+        CPPUNIT_ASSERT(it == f.begin());
+        CPPUNIT_ASSERT((--it) == f.begin());
+    }
+    {
+        int i{0};
+        auto it = f.rbegin([&](auto a, auto b){
+            if(a == ::tree<int>::depth_change::down) {
+                i+=1;
+            } else {
+                i-=1;
+            }
+        });
+        CPPUNIT_ASSERT(i == 0);
+        ++it;
+        CPPUNIT_ASSERT(i == 1);
+        ++it;
+        CPPUNIT_ASSERT(i == 1);
+        ++it;
+        CPPUNIT_ASSERT(i == 0);
+        ++it;
+        CPPUNIT_ASSERT(i == 1);
+        ++it;
+        CPPUNIT_ASSERT(i == 1);
+        ++it;
+        CPPUNIT_ASSERT(i == 0);
+        ++it;
+        CPPUNIT_ASSERT(i == 1);
+        ++it;
+        CPPUNIT_ASSERT(i == 1);
+        ++it;
+        CPPUNIT_ASSERT(it == f.rend());
+        CPPUNIT_ASSERT(i == 0);
+    }
+}
+
 void aTreeTest::testInsertTree() {
     ms::tree<int> t{};
     CPPUNIT_ASSERT(t.size() == 0);
