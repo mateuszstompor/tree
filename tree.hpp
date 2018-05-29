@@ -209,7 +209,7 @@ template<class __iterator_class>
 bool ms::tree<T, A>::has_sibling (__iterator_class it, sibling s) {
     if(it.__current != nullptr) {
         auto v = it.__current->__p == nullptr ? it.__rn : it.__current->__p->__c;
-        auto i = std::find(v.begin(), v.end(), it.__current) - v.begin();
+        size_type i = std::find(v.begin(), v.end(), it.__current) - v.begin();
         return s == sibling::left ? i > 0 : i < v.size() - 1;
     }
     return false;
