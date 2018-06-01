@@ -460,6 +460,12 @@ void aTreeTest::testReverseIterator() {
     CPPUNIT_ASSERT(*(--p) == 1);
     CPPUNIT_ASSERT(*(--p) == 2);
     CPPUNIT_ASSERT(*(--p) == 3);
+    auto iterat = t_tree.end();
+    
+    CPPUNIT_ASSERT(*(--iterat) == 3);
+    CPPUNIT_ASSERT(*(--iterat) == 2);
+    auto riterat = t_tree.rend();
+    CPPUNIT_ASSERT(*(--riterat) == 8);
 }
 
 void aTreeTest::testConstIterator() {
