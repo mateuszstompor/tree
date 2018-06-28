@@ -12,7 +12,10 @@ namespace ms {
     
     template <class T, class A = std::allocator<T>>
     class tree {
-        struct node;
+    
+    #ifndef TESTS
+            struct node;
+    #endif
         
         template<class X, class Y>
         friend class tree;
@@ -29,6 +32,10 @@ namespace ms {
         static bool                     has_sibling             (D, sibling);
         
     public:
+        
+    #ifdef TESTS
+            struct node;
+    #endif
         
         enum class depth_change {
             up,
@@ -81,8 +88,9 @@ namespace ms {
             bool                        has_right_sibling       () const;
             _reverse_iterator           child                   (size_type) const;
             size_type                   children_amount         () const;
-            
+    #ifndef TESTS
         private:
+    #endif
                                         _reverse_iterator       (node_ptr, vec_ref, lambda = [](auto, auto){});
             vec_ref                     __rn;
             node_ptr                    __current;
@@ -126,8 +134,9 @@ namespace ms {
             bool                        has_right_sibling       () const;
             _iterator                   child                   (size_type) const;
             size_type                   children_amount         () const;
-
+    #ifndef TESTS
         private:
+    #endif
                                         _iterator               (node_ptr, vec_ref, lambda = [](auto, auto){});
             vec_ref                     __rn;
             node_ptr                    __current;
@@ -172,13 +181,14 @@ namespace ms {
         void                            swap                    (tree &);
         constexpr size_type             size                    () const { return __size; }
         constexpr bool                  empty                   () const { return __size == 0; }
-        
+#ifndef TESTS
     private:
+#endif
         
         struct node {
             friend class tree;
-                                        node                    (T const &, node * p = nullptr);
-                                        node                    (T &&, node * p = nullptr);
+                                        node                    (T const &, node *, node *, node *);
+                                        node                    (T &&, node *, node *, node *);
                                         node                    (node const &) = delete;
                                         node                    (node &&) = delete;
             node &                      operator =              (node &&) = delete;
@@ -193,6 +203,8 @@ namespace ms {
             constexpr T const &         get_value               () const { return __v; }
             T                           __v;
             node *                      __p;
+            node *                      __l;
+            node *                      __r;
             std::vector<node *>         __c{};
         };
         
@@ -408,7 +420,7 @@ template<class T, class A>
 template <class U>
 ms::tree<T, A>::tree (tree<U> const & t, std::function<T(U const &)> l) {
     __nodes.resize(t.__nodes.size());
-    for(size_type i{0}; i < t.__nodes.size(); ++i)
+    for(size_type i{0}; i < t.__nodes.size(); ++i) {
         __nodes[i] = tree<U>::node::
 		
 		#ifndef __WIN32__
@@ -416,19 +428,29 @@ ms::tree<T, A>::tree (tree<U> const & t, std::function<T(U const &)> l) {
 		#endif
 		
 		copy<T>(t.__nodes[i], l);
+        if(i > 0) {
+            __nodes[i - 1]->__r = __nodes[i];
+            __nodes[i]->__l = __nodes[i - 1];
+        }
+    }
 }
 
 template<class T, class A>
 ms::tree<T, A>::tree (const tree & t) : __size{t.__size} {
     __nodes.resize(t.__nodes.size());
-    for(size_type i{0}; i < t.__nodes.size(); ++i)
+    for(size_type i{0}; i < t.__nodes.size(); ++i) {
         __nodes[i] = node::
 		
 		#ifndef __WIN32__
 		template
 		#endif
-		
-		copy<T>(t.__nodes[i]);
+
+        copy<T>(t.__nodes[i]);
+        if(i > 0) {
+            __nodes[i - 1]->__r = __nodes[i];
+            __nodes[i]->__l = __nodes[i - 1];
+        }
+    }
 }
 
 template<class T, class A>
@@ -463,7 +485,7 @@ typename ms::tree<T, A> & ms::tree<T, A>::operator = (const tree & t) {
     __size = t.__size;
     std::for_each(__nodes.begin(), __nodes.end(), [](auto n){ node::release(n); });
     __nodes.resize(t.__nodes.size());
-    for(size_type i{0}; i < __nodes.size(); ++i)
+    for(size_type i{0}; i < __nodes.size(); ++i) {
         __nodes[i] = node::
 		
 		#ifndef __WIN32__
@@ -471,6 +493,12 @@ typename ms::tree<T, A> & ms::tree<T, A>::operator = (const tree & t) {
 		#endif
 
 		copy<T>(t.__nodes[i]);
+    
+        if(i > 0) {
+            __nodes[i - 1]->__r = __nodes[i];
+            __nodes[i]->__l = __nodes[i - 1];
+        }
+    }
     return *this;
 }
 
@@ -494,10 +522,10 @@ ms::tree<T, A>::~tree() {
 }
 
 template<class T, class A>
-ms::tree<T, A>::node::node(T const & v, node * p) : __v{v}, __p{p} { }
+ms::tree<T, A>::node::node(T const & v, node * p, node * l, node * r) : __v{v}, __p{p}, __l{l}, __r{r} { }
 
 template<class T, class A>
-ms::tree<T, A>::node::node(T && v, node * p) : __v(std::move(v)), __p{p} { }
+ms::tree<T, A>::node::node(T && v, node * p, node * l, node * r) : __v(std::move(v)), __p{p}, __l{l}, __r{r} { }
 
 template<class T, class A>
 typename ms::tree<T, A>::size_type ms::tree<T, A>::node::release(node * n) {
@@ -516,11 +544,15 @@ typename ::ms::tree<X>::node *
 typename ms::tree<X>::node *
 #endif
 ms::tree<T, A>::node::copy (node * n, std::function<X(T const &)> l) {
-    auto new_node = new typename ms::tree<X>::node{l(n->__v), nullptr};
+    auto new_node = new typename ms::tree<X>::node{l(n->__v), nullptr, nullptr, nullptr};
     new_node->__c.resize(n->__c.size());
     for(size_type i{0}; i < n->__c.size(); ++i) {
         new_node->__c[i] = copy<X>(n->__c[i], l);
         new_node->__c[i]->__p = new_node;
+        if(i > 0) {
+            new_node->__c[i]->__l = new_node->__c[i-1];
+            new_node->__c[i-1]->__r = new_node;
+        }
     }
     return new_node;
 }
@@ -529,32 +561,52 @@ template<class T, class A>
 typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (const_iterator it, T const & value) {
     ++__size;
     if(it.__current == nullptr) {
-        auto p = new node{std::move(value), nullptr};
+        auto p = new node{value, nullptr, nullptr, nullptr};
+        if(__size > 1) {
+            (*__nodes.rbegin())->__r = p;
+            p->__l = *__nodes.rbegin();
+        }
         __nodes.push_back(p);
         return _iterator<false>{p, it.__rn};
     } else {
         auto & ip = it.__current->__p != nullptr ? it.__current->__p->__c : __nodes;
         auto p = std::find(ip.begin(), ip.end(), it.__current);
-        auto n = ip.insert(p, new node{value, it.__current->__p});
+        auto node_to_insert = new node{value, it.__current->__p, (*p)->__l, (*p)};
+        if(node_to_insert->__l) {
+            node_to_insert->__l->__r = node_to_insert;
+        }
+        if(node_to_insert->__r) {
+            node_to_insert->__r->__l = node_to_insert;
+        }
+        auto n = ip.insert(p, node_to_insert);
         return _iterator<false>{*n, it.__rn};
     }
-    return it;
 }
 
 template<class T, class A>
 typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (const_iterator it, T && value) {
     ++__size;
     if(it.__current == nullptr) {
-        auto p = new node{std::forward<T>(value), nullptr};
+        auto p = new node{std::forward<T>(value), nullptr, nullptr, nullptr};
+        if(__size > 1) {
+            (*__nodes.rbegin())->__r = p;
+            p->__l = *__nodes.rbegin();
+        }
         __nodes.push_back(p);
         return _iterator<false>{p, it.__rn};
     } else {
         auto & ip = it.__current->__p != nullptr ? it.__current->__p->__c : __nodes;
         auto p = std::find(ip.begin(), ip.end(), it.__current);
-        auto n = ip.insert(p, new node{std::forward<T>(value), it.__current->__p});
+        auto node_to_insert = new node{std::forward<T>(value), it.__current->__p, (*p)->__l, (*p)};
+        if(node_to_insert->__l) {
+            node_to_insert->__l->__r = node_to_insert;
+        }
+        if(node_to_insert->__r) {
+            node_to_insert->__r->__l = node_to_insert;
+        }
+        auto n = ip.insert(p, node_to_insert);
         return _iterator<false>{*n, it.__rn};
     }
-    return it;
 }
 
 template<class T, class A>
@@ -562,14 +614,19 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (const_iterator it, t
     if(this != &t) {
         __size += t.__size;
         if(it.__current == nullptr) {
-            for(auto n : t.__nodes)
+            for(size_type i{0}; i < t.__nodes.size(); ++i) {
                 __nodes.push_back(node::
 					
 					#ifndef __WIN32__
 					template
 					#endif
 
-					copy<T>(n));
+					copy<T>(t.__nodes[i]));
+                if(i > 0 || (i == 0 && __nodes.size() > 0)) {
+                    __nodes[i]->__l = __nodes[i - 1];
+                    __nodes[i - 1]->__r = __nodes[i];
+                }
+            }
             return _iterator<false>{__nodes.front(), it.__rn};
         } else {
             auto & ip = it.__current->__p != nullptr ? it.__current->__p->__c : __nodes;
@@ -584,6 +641,12 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (const_iterator it, t
 					
 					copy<T>(*i);
                 n->__p = it.__current->__p;
+                if(index > 0 && index < ip.size() - 1) {
+                    ip[index]->__l = n;
+                    n->__r = ip[index];
+                    ip[index-1]->__r = n;
+                    n->__l = ip[index-1];
+                }
                 ip.insert(index + ip.begin(), n);
                 ++i;
             }
@@ -599,11 +662,22 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_c (const_iterator it, s
     if(it.__current != nullptr) {
         ++__size;
         auto parent = it.__current;
-        auto t = parent->__c.insert(parent->__c.begin() + index, new node{std::forward<T>(value), parent});
+        auto node_to_insert = new node{std::forward<T>(value), parent, nullptr, nullptr};
+        if(!parent->__c.empty()) {
+            auto l = index > 0 ? parent->__c[index-1] : nullptr;
+            auto r = index < parent->__c.size() ? parent->__c[index] : nullptr;
+            node_to_insert->__l = l;
+            node_to_insert->__r = r;
+            if(l) {
+                l->__r = node_to_insert;
+            }
+            if(r) {
+                r->__l = node_to_insert;
+            }
+        }
+        auto t = parent->__c.insert(parent->__c.begin() + index, node_to_insert);
         _iterator<false> iter{*t, it.__rn};
         return iter;
-    } else {
-        return it;
     }
     return it;
 }
@@ -613,37 +687,52 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_c (const_iterator it, s
     if(it.__current != nullptr) {
         ++__size;
         auto parent = it.__current;
-        auto t = parent->__c.insert(parent->__c.begin() + index, new node{value, parent});
+        auto node_to_insert = new node{value, parent, nullptr, nullptr};
+        if(!parent->__c.empty()) {
+            auto l = index > 0 ? parent->__c[index-1] : nullptr;
+            auto r = index < parent->__c.size() ? parent->__c[index] : nullptr;
+            node_to_insert->__l = l;
+            node_to_insert->__r = r;
+            if(l) {
+                l->__r = node_to_insert;
+            }
+            if(r) {
+                r->__l = node_to_insert;
+            }
+        }
+        auto t = parent->__c.insert(parent->__c.begin() + index, node_to_insert);
         _iterator<false> iter{*t, it.__rn};
         return iter;
-    } else {
-        return it;
     }
     return it;
 }
 
 template<class T, class A>
 typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_c (const_iterator it, size_type index, tree const & t) {
-    if(this != &t) {
-        if(it.__current != nullptr) {
-            __size += t.__size;
-            auto parent = it.__current;
-            for(size_type i{0}; i < t.__nodes.size(); ++i) {
-                auto cp = node::
-					
-					#ifndef __WIN32__
-					template
-					#endif
+    if(this != &t && it.__current != nullptr) {
+        __size += t.__size;
+        auto parent = it.__current;
+        for(size_type i{0}; i < t.__nodes.size(); ++i) {
+            auto cp = node::
+            
+                #ifndef __WIN32__
+                template
+                #endif
 
-					copy<T>(t.__nodes[i]);
-                cp->__p = parent;
-                parent->__c.insert(parent->__c.begin() + index + i, cp);
+                copy<T>(t.__nodes[i]);
+            cp->__p = parent;
+            if(index + i > 0) {
+                cp->__l = parent->__c[index + i - 1];
+                parent->__c[index + i - 1]->__r = cp;
             }
-            _iterator<false> iter{*(parent->__c.begin() + index), it.__rn};
-            return iter;
-        } else {
-             return it;
+            if(i == t.__nodes.size() - 1 && index < parent->__c.size() - 2) {
+                cp->__r = parent->__c[index + i + 1];
+                parent->__c[index + i + 1]->__l = cp;
+            }
+            parent->__c.insert(parent->__c.begin() + index + i, cp);
         }
+        _iterator<false> iter{*(parent->__c.begin() + index), it.__rn};
+        return iter;
     } else {
         return end();
     }
@@ -660,6 +749,12 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::erase (const_iterator iter) {
         }
         auto & parent_children = iter.__current->__p ? iter.__current->__p->__c : __nodes;
         auto node_it = std::find_if(parent_children.begin(), parent_children.end(), [&](auto v){ return v == iter.__current; });
+        if((*node_it)->__l) {
+            (*node_it)->__l = (*node_it)->__r;
+        }
+        if((*node_it)->__r) {
+            (*node_it)->__r = (*node_it)->__l;
+        }
         __size -= node::release(*node_it);
         parent_children.erase(node_it);
         return it;
@@ -1043,26 +1138,23 @@ template
 #endif
 
 _iterator<is_const, calls> & ms::tree<T, A>::_iterator<is_const, calls>::operator ++ () {
-    if(__current != nullptr) {
-        if(!__current->__c.empty()) {
-            __current = *(__current->__c.begin());
-            if constexpr (calls)
-                __l(tree<T, A>::depth_change::down, *this);
-        } else {
+    if(__current) {
+        if(__current->__c.empty()) {
             while(__current != nullptr) {
-                auto & nts = __current->__p != nullptr ? __current->__p->__c : __rn;
-                auto i = std::find(nts.rbegin(), nts.rend(), __current);
-                if(i != nts.rbegin()) {
-                    __current = *(--i);
+                if(__current->__r != nullptr) {
+                    __current = __current->__r;
                     break;
-                } else {
-                    __current = __current->__p;
-                    if constexpr (calls) {
-                        if(__current != nullptr)
-                            __l(tree<T, A>::depth_change::up, *this);
-                    }
+                }
+                __current = __current->__p;
+                if constexpr (calls) {
+                    if(__current != nullptr)
+                        __l(tree<T, A>::depth_change::up, *this);
                 }
             }
+        } else {
+            __current = __current->__c[0];
+            if constexpr (calls)
+                __l(tree<T, A>::depth_change::down, *this);
         }
     }
     return *this;

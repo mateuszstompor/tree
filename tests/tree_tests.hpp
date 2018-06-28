@@ -1,9 +1,17 @@
 #pragma once
 
+#define TESTS
+
 #include <cppunit/extensions/HelperMacros.h>
+#include <chrono>
+#include <string>
+#include <functional>
 #include "../tree.hpp"
 
+
 class aTreeTest : public CppUnit::TestFixture {
+    
+    
     CPPUNIT_TEST_SUITE(aTreeTest);
     CPPUNIT_TEST(testInsert);
     CPPUNIT_TEST(testInsert2);
@@ -21,6 +29,8 @@ class aTreeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(testConversion);
     CPPUNIT_TEST(testInsertTree);
     CPPUNIT_TEST(testLambdaCalls);
+    CPPUNIT_TEST(testInsert5);
+    CPPUNIT_TEST(testPerformance);
     CPPUNIT_TEST(testTreeConversionConstructor);
     CPPUNIT_TEST_SUITE_END();
 public:
@@ -30,6 +40,7 @@ public:
     void testInsert2();
     void testInsert3();
     void testInsert4();
+    void testInsert5();
     void testSize();
     void testReverseIterator();
     void testConstReverseIterator();
@@ -43,6 +54,7 @@ public:
     void testEmptiness();
     void testConversion();
     void testInsertTree();
+    void testPerformance();
     void testTreeConversionConstructor();
 private:
     ms::tree<int>* tree;
