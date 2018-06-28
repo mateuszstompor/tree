@@ -35,13 +35,13 @@ void aTreeTest::tearDown() {
 }
 
 void aTreeTest::testPerformance() {
-    for(int i = 0; i < 200; ++i) {
+    for(auto i = 0; i < 200; ++i) {
         t_tree.insert_c(t_tree.begin(), 0, 2);
     }
     
     measue_time([&](){
         auto s = t_tree.end();
-        for(int j{0}; j < 10000; ++j) {
+        for(auto j{0}; j < 10000; ++j) {
             auto i = t_tree.begin();
             while(i != s) {
                 (*i) += 1;
@@ -52,14 +52,14 @@ void aTreeTest::testPerformance() {
     
     
     std::vector<int> v;
-    for(int p=0; p < v.size(); ++p) {
+    for(auto p=0; p < v.size(); ++p) {
         v.push_back(p);
     }
     
     
     measue_time([&](){
         auto s = v.end();
-        for(int j{0}; j < 10000; ++j) {
+        for(auto j{0}; j < 10000; ++j) {
             auto i = v.begin();
             while(i != s) {
                 (*i) += 1;
@@ -342,7 +342,7 @@ void aTreeTest::testLambdaCalls() {
     f.insert_c(f.begin().right_sibling().right_sibling(), 0, 33);
     f.insert_c(f.begin().right_sibling().right_sibling(), 1, 34);
     {
-        int i{0};
+        auto i{0};
         auto it = f.begin([&](auto a, auto b){
             if(a == ::tree<int>::depth_change::down) {
                 i+=1;
@@ -411,7 +411,7 @@ void aTreeTest::testLambdaCalls() {
         CPPUNIT_ASSERT((--it) == f.begin());
     }
     {
-        int i{0};
+        auto i{0};
         auto it = f.rbegin([&](auto a, auto b){
             if(a == ::tree<int>::depth_change::down) {
                 i+=1;
