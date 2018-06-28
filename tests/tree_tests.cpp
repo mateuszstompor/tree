@@ -23,7 +23,7 @@ void aTreeTest::setUp() {
     t_tree.insert_c(++(++t_tree.begin()), 0, 6);
     auto const i = t_tree.insert_c(++(++(++t_tree.begin())), 0, 7);
     t_tree.insert_s(i, 8);
-    
+
     deletionTree.insert_s(deletionTree.begin(), 3);
     deletionTree.insert_s(deletionTree.begin(), 2);
     deletionTree.insert_s(deletionTree.begin(), 1);
@@ -38,7 +38,7 @@ void aTreeTest::testPerformance() {
     for(auto i = 0; i < 200; ++i) {
         t_tree.insert_c(t_tree.begin(), 0, 2);
     }
-    
+
     measue_time([&](){
         auto s = t_tree.end();
         for(auto j{0}; j < 10000; ++j) {
@@ -49,14 +49,14 @@ void aTreeTest::testPerformance() {
             }
         }
     }, "tree: iteration");
-    
-    
+
+
     std::vector<int> v;
-    for(auto p=0; p < v.size(); ++p) {
+    for(std::size_t p=0; p < v.size(); ++p) {
         v.push_back(p);
     }
-    
-    
+
+
     measue_time([&](){
         auto s = v.end();
         for(auto j{0}; j < 10000; ++j) {
@@ -300,21 +300,21 @@ void aTreeTest::testConversion() {
     ms::tree<int>::const_iterator cb{b};
 
     cb = b;
-    
+
     ms::tree<int>::reverse_iterator r = t_tree.rbegin([](auto, auto){std::cout << "hello" << '\n';});
     ms::tree<int>::const_reverse_iterator cr{r};
-    
+
     ms::tree<int>::iterator p {r};
     p = r;
     cr = r;
-    
+
     ms::tree<int>::reverse_iterator rr {p};
     rr = p;
     CPPUNIT_ASSERT(rr == p);
 }
 
 void aTreeTest::testTreeConversionConstructor() {
-    
+
     auto f = [](int const & a) -> float { return a; };
     auto i = [](float const & a) -> int { return a; };
     ms::tree<float> tf{t_tree, static_cast<std::function<float(int const &)>>(f)};
@@ -478,7 +478,7 @@ void aTreeTest::testInsertTree() {
     while(p2 != t.end()) {
         CPPUNIT_ASSERT(*(b++) == *(p2++));
     }
-    
+
     CPPUNIT_ASSERT(t2.size() == 2 * t_tree.size());
     auto i = t2.insert_c(t2.begin(), 0, t_tree);
     CPPUNIT_ASSERT(*i == 1);
@@ -510,7 +510,7 @@ void aTreeTest::testReverseIterator() {
     CPPUNIT_ASSERT(*(--p) == 2);
     CPPUNIT_ASSERT(*(--p) == 3);
     auto iterat = t_tree.end();
-    
+
     CPPUNIT_ASSERT(*(--iterat) == 3);
     CPPUNIT_ASSERT(*(--iterat) == 2);
     auto riterat = t_tree.rend();
@@ -550,50 +550,50 @@ void aTreeTest::testInsert5() {
     auto i = aTree.begin();
     CPPUNIT_ASSERT(i.has_right_sibling() == false);
     CPPUNIT_ASSERT(i.has_left_sibling() == false);
-    
+
     i = aTree.insert_s(aTree.begin(), 2);
     CPPUNIT_ASSERT(*i == 2);
     CPPUNIT_ASSERT(i.has_right_sibling() == false);
     CPPUNIT_ASSERT(i.has_left_sibling() == false);
-    
+
     CPPUNIT_ASSERT(i.__current->__l == nullptr);
     CPPUNIT_ASSERT(i.__current->__r == nullptr);
     CPPUNIT_ASSERT(i.__current->__p == nullptr);
-    
+
     i = aTree.insert_s(aTree.begin(), 3);
     CPPUNIT_ASSERT(*i == 3);
     CPPUNIT_ASSERT(i.has_right_sibling() == true);
     CPPUNIT_ASSERT(i.has_left_sibling() == false);
-    
+
     CPPUNIT_ASSERT(i.__current->__l == nullptr);
     CPPUNIT_ASSERT(i.__current->__r != nullptr);
     CPPUNIT_ASSERT(i.__current->__r->__v == 2);
     CPPUNIT_ASSERT(i.__current->__p == nullptr);
-    
+
     ++i;
-    
+
     CPPUNIT_ASSERT(*i == 2);
     CPPUNIT_ASSERT(i.__current->__l != nullptr);
     CPPUNIT_ASSERT(i.__current->__l->__v == 3);
     CPPUNIT_ASSERT(i.__current->__r == nullptr);
     CPPUNIT_ASSERT(i.__current->__p == nullptr);
-    
+
     i = aTree.insert_s(aTree.end(), 4);
     CPPUNIT_ASSERT(*i == 4);
     CPPUNIT_ASSERT(i.__current->__l != nullptr);
     CPPUNIT_ASSERT(i.__current->__l->__v == 2);
     CPPUNIT_ASSERT(i.__current->__r == nullptr);
     CPPUNIT_ASSERT(i.__current->__p == nullptr);
-    
+
     i = aTree.insert_c(aTree.begin(), 0, 6);
-    
+
     CPPUNIT_ASSERT(*i == 6);
     CPPUNIT_ASSERT(i.__current->__l == nullptr);
     CPPUNIT_ASSERT(i.__current->__r == nullptr);
     CPPUNIT_ASSERT(i.__current->__p != nullptr);
 
     i = aTree.insert_c(aTree.begin(), 0, 7);
-    
+
     CPPUNIT_ASSERT(i.__current->__l == nullptr);
     CPPUNIT_ASSERT(i.__current->__r != nullptr);
     CPPUNIT_ASSERT(i.__current->__r->__v == 6);
@@ -601,7 +601,7 @@ void aTreeTest::testInsert5() {
     CPPUNIT_ASSERT(i.__current->__p != nullptr);
 
     i = aTree.insert_c(aTree.begin(), 2, 8);
-    
+
     CPPUNIT_ASSERT(i.__current->__l != nullptr);
     CPPUNIT_ASSERT(i.__current->__r == nullptr);
     CPPUNIT_ASSERT(i.__current->__p != nullptr);
@@ -618,8 +618,8 @@ void aTreeTest::testDeletionNodePtrs() {
     CPPUNIT_ASSERT(i.__current->__r->__l == i.__current);
     auto p = deletionTree.erase(i);
     CPPUNIT_ASSERT(*p == 1);
-    CPPUNIT_ASSERT(i.__current->__r->__v == 3);
-//    CPPUNIT_ASSERT(i.__current->__r->__r == nullptr);
-//    CPPUNIT_ASSERT(i.__current->__r->__l == i.__current);
-//    CPPUNIT_ASSERT(i.__current->__l == nullptr);
+    CPPUNIT_ASSERT(p.__current->__r->__v == 3);
+    CPPUNIT_ASSERT(p.__current->__r->__r == nullptr);
+    CPPUNIT_ASSERT(p.__current->__r->__l == p.__current);
+    CPPUNIT_ASSERT(p.__current->__l == nullptr);
 }

@@ -9,53 +9,53 @@
 #include <type_traits>
 
 namespace ms {
-    
+
     template <class T, class A = std::allocator<T>>
     class tree {
-    
+
     #ifndef TESTS
             struct node;
     #endif
-        
+
         template<class X, class Y>
         friend class tree;
-        
+
         enum class sibling {
             left,
             right
         };
-        
+
         template<class D>
         static D                        get_sibling             (D, sibling);
-        
+
         template<class D>
         static bool                     has_sibling             (D, sibling);
-        
+
     public:
-        
+
     #ifdef TESTS
             struct node;
     #endif
-        
+
         enum class depth_change {
             up,
             down
         };
-                
+
         template<bool is_const, bool calls_on_hierarchy_change>
         class _iterator;
-        
+
         using allocator_type    = A;
         using value_type        = typename A::value_type;
         using reference         = typename A::reference;
         using const_reference   = typename A::const_reference;
         using size_type         = typename A::size_type;
-        
+
         template<bool is_const = false, bool calls_on_hierarchy_change = true>
         class _reverse_iterator {
             friend class tree;
         public:
-            
+
             using value_type            = typename A::value_type;
             using reference             = typename std::conditional_t<is_const, T const &, T &>;
             using pointer               = typename std::conditional_t<is_const, T const *, T *>;
@@ -63,7 +63,7 @@ namespace ms {
             using vec_ref               = std::vector<node *> &;
             using lambda                = std::function<void(depth_change, _reverse_iterator)>;
             using iterator_category     = std::forward_iterator_tag;
-            
+
                                         _reverse_iterator       (_iterator<is_const, calls_on_hierarchy_change> const &);
                                         _reverse_iterator       (_reverse_iterator const &) = default;
             template <bool D = !is_const>
@@ -96,7 +96,7 @@ namespace ms {
             node_ptr                    __current;
             lambda                      __l{[](auto, auto){}};
         };
-        
+
         template<bool is_const = false, bool calls_on_hierarchy_change = true>
         class _iterator {
             friend class tree;
@@ -109,7 +109,7 @@ namespace ms {
             using vec_ref               = std::vector<node *> &;
             using lambda                = std::function<void(depth_change, _iterator)>;
             using iterator_category     = std::forward_iterator_tag;
-            
+
                                         _iterator               (_reverse_iterator<is_const, calls_on_hierarchy_change> const &);
                                         _iterator               (_iterator const &) = default;
             template <bool D = !is_const>
@@ -142,12 +142,12 @@ namespace ms {
             node_ptr                    __current;
             lambda                      __l{[](auto, auto){}};
         };
-        
+
         using iterator                  = _iterator<false>;
         using const_iterator            = _iterator<true>;
         using reverse_iterator          = _reverse_iterator<false>;
         using const_reverse_iterator    = _reverse_iterator<true>;
-        
+
                                         tree                    () = default;
                                         tree                    (const tree &);
                                         tree                    (tree &&);
@@ -184,7 +184,7 @@ namespace ms {
 #ifndef TESTS
     private:
 #endif
-        
+
         struct node {
             friend class tree;
                                         node                    (T const &, node *, node *, node *);
@@ -196,7 +196,7 @@ namespace ms {
             bool                        operator ==             (node const &);
             bool                        operator !=             (node const &);
             static size_type            release                 (node *);
-            
+
             template <class X> static typename
             ms::tree<X>::node *         copy                    (node * n, std::function<X(T const &)> l = [](auto a){return a;});
                                         ~node                   () = default;
@@ -207,11 +207,11 @@ namespace ms {
             node *                      __r;
             std::vector<node *>         __c{};
         };
-        
+
         std::vector<node *>             __nodes{};
         size_type                       __size{0};
     };
-    
+
 }
 
 template<class T, class A>
@@ -422,11 +422,11 @@ ms::tree<T, A>::tree (tree<U> const & t, std::function<T(U const &)> l) {
     __nodes.resize(t.__nodes.size());
     for(size_type i{0}; i < t.__nodes.size(); ++i) {
         __nodes[i] = tree<U>::node::
-		
+
 		#ifndef __WIN32__
 		template
 		#endif
-		
+
 		copy<T>(t.__nodes[i], l);
         if(i > 0) {
             __nodes[i - 1]->__r = __nodes[i];
@@ -440,7 +440,7 @@ ms::tree<T, A>::tree (const tree & t) : __size{t.__size} {
     __nodes.resize(t.__nodes.size());
     for(size_type i{0}; i < t.__nodes.size(); ++i) {
         __nodes[i] = node::
-		
+
 		#ifndef __WIN32__
 		template
 		#endif
@@ -487,13 +487,13 @@ typename ms::tree<T, A> & ms::tree<T, A>::operator = (const tree & t) {
     __nodes.resize(t.__nodes.size());
     for(size_type i{0}; i < __nodes.size(); ++i) {
         __nodes[i] = node::
-		
+
 		#ifndef __WIN32__
 		template
 		#endif
 
 		copy<T>(t.__nodes[i]);
-    
+
         if(i > 0) {
             __nodes[i - 1]->__r = __nodes[i];
             __nodes[i]->__l = __nodes[i - 1];
@@ -616,7 +616,7 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (const_iterator it, t
         if(it.__current == nullptr) {
             for(size_type i{0}; i < t.__nodes.size(); ++i) {
                 __nodes.push_back(node::
-					
+
 					#ifndef __WIN32__
 					template
 					#endif
@@ -637,22 +637,15 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (const_iterator it, t
             auto index = std::find(ip.begin(), ip.end(), it.__current) - ip.begin();
             for(size_type i{0}; i < t.__nodes.size(); ++i) {
                 auto n = node::
-					
+
 					#ifndef __WIN32__
 					template
 					#endif
-					
+
 					copy<T>(t.__nodes[t.__nodes.size() - 1 - i]);
                 n->__p = it.__current->__p;
                 ip[index]->__l = n;
                 n->__r = ip[index];
-//                if(i == 0 && index > 0) {
-//                    ip[index]->__l = n;
-//                    n->__r = ip[index];
-//                } else if(i > 0) {
-//                    ip[index]->__l = n;
-//                    n->__r = ip[index];
-//                }
                 if(i == t.__nodes.size() - 1 && index > 0) {
                     ip[index-1]->__r = n;
                     n->__l = ip[index-1];
@@ -723,7 +716,7 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_c (const_iterator it, s
         auto parent = it.__current;
         for(size_type i{0}; i < t.__nodes.size(); ++i) {
             auto cp = node::
-            
+
                 #ifndef __WIN32__
                 template
                 #endif
@@ -818,12 +811,12 @@ template<class T, class A>
 typename ms::tree<T, A>::reverse_iterator ms::tree<T, A>::rend () {
     return reverse_iterator{nullptr, __nodes};
 }
-        
+
 template<class T, class A>
 typename ms::tree<T, A>::const_reverse_iterator ms::tree<T, A>::rend () const {
     return const_reverse_iterator{nullptr, __nodes};
 }
-        
+
 template<class T, class A>
 typename ms::tree<T, A>::const_reverse_iterator ms::tree<T, A>::crend () const {
     return const_reverse_iterator{nullptr, const_cast<std::vector<node*> &>(__nodes)};
@@ -1102,7 +1095,7 @@ _reverse_iterator<is_const, calls> & ms::tree<T, A>::_reverse_iterator<is_const,
                         if(__current != nullptr)
                             __l(tree<T, A>::depth_change::up, *this);
                     }
-                        
+
                 }
             }
         }
@@ -1164,4 +1157,3 @@ _iterator<is_const, calls> & ms::tree<T, A>::_iterator<is_const, calls>::operato
     }
     return *this;
 }
-
