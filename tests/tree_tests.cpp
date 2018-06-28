@@ -23,6 +23,10 @@ void aTreeTest::setUp() {
     t_tree.insert_c(++(++t_tree.begin()), 0, 6);
     auto const i = t_tree.insert_c(++(++(++t_tree.begin())), 0, 7);
     t_tree.insert_s(i, 8);
+    
+    deletionTree.insert_s(deletionTree.begin(), 3);
+    deletionTree.insert_s(deletionTree.begin(), 2);
+    deletionTree.insert_s(deletionTree.begin(), 1);
 }
 
 void aTreeTest::tearDown() {
@@ -606,3 +610,16 @@ void aTreeTest::testInsert5() {
 
 }
 
+void aTreeTest::testDeletionNodePtrs() {
+    auto i = ++deletionTree.begin();
+    CPPUNIT_ASSERT(i.__current->__l->__v == 1);
+    CPPUNIT_ASSERT(i.__current->__l->__r == i.__current);
+    CPPUNIT_ASSERT(i.__current->__r->__v == 3);
+    CPPUNIT_ASSERT(i.__current->__r->__l == i.__current);
+    auto p = deletionTree.erase(i);
+    CPPUNIT_ASSERT(*p == 1);
+    CPPUNIT_ASSERT(i.__current->__r->__v == 3);
+//    CPPUNIT_ASSERT(i.__current->__r->__r == nullptr);
+//    CPPUNIT_ASSERT(i.__current->__r->__l == i.__current);
+//    CPPUNIT_ASSERT(i.__current->__l == nullptr);
+}

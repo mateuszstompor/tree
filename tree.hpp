@@ -551,7 +551,7 @@ ms::tree<T, A>::node::copy (node * n, std::function<X(T const &)> l) {
         new_node->__c[i]->__p = new_node;
         if(i > 0) {
             new_node->__c[i]->__l = new_node->__c[i-1];
-            new_node->__c[i-1]->__r = new_node;
+            new_node->__c[i-1]->__r = new_node->__c[i];
         }
     }
     return new_node;
@@ -622,33 +622,42 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_s (const_iterator it, t
 					#endif
 
 					copy<T>(t.__nodes[i]));
-                if(i > 0 || (i == 0 && __nodes.size() > 0)) {
+                if(i > 0) {
                     __nodes[i]->__l = __nodes[i - 1];
                     __nodes[i - 1]->__r = __nodes[i];
+                }
+                if(i == 0 && __nodes.size() > 1) {
+                    __nodes[__nodes.size() - 2]->__r = __nodes[__nodes.size() - 1];
+                    __nodes[__nodes.size() - 1]->__l = __nodes[__nodes.size() - 2];
                 }
             }
             return _iterator<false>{__nodes.front(), it.__rn};
         } else {
             auto & ip = it.__current->__p != nullptr ? it.__current->__p->__c : __nodes;
             auto index = std::find(ip.begin(), ip.end(), it.__current) - ip.begin();
-            auto i = t.__nodes.rbegin();
-            while(i != t.__nodes.rend()) {
+            for(size_type i{0}; i < t.__nodes.size(); ++i) {
                 auto n = node::
 					
 					#ifndef __WIN32__
 					template
 					#endif
 					
-					copy<T>(*i);
+					copy<T>(t.__nodes[t.__nodes.size() - 1 - i]);
                 n->__p = it.__current->__p;
-                if(index > 0 && index < ip.size() - 1) {
-                    ip[index]->__l = n;
-                    n->__r = ip[index];
+                ip[index]->__l = n;
+                n->__r = ip[index];
+//                if(i == 0 && index > 0) {
+//                    ip[index]->__l = n;
+//                    n->__r = ip[index];
+//                } else if(i > 0) {
+//                    ip[index]->__l = n;
+//                    n->__r = ip[index];
+//                }
+                if(i == t.__nodes.size() - 1 && index > 0) {
                     ip[index-1]->__r = n;
                     n->__l = ip[index-1];
                 }
                 ip.insert(index + ip.begin(), n);
-                ++i;
             }
             return _iterator<false>{*(ip.begin() + index), it.__rn};
         }
@@ -725,10 +734,6 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::insert_c (const_iterator it, s
                 cp->__l = parent->__c[index + i - 1];
                 parent->__c[index + i - 1]->__r = cp;
             }
-            if(i == t.__nodes.size() - 1 && index < parent->__c.size() - 2) {
-                cp->__r = parent->__c[index + i + 1];
-                parent->__c[index + i + 1]->__l = cp;
-            }
             parent->__c.insert(parent->__c.begin() + index + i, cp);
         }
         _iterator<false> iter{*(parent->__c.begin() + index), it.__rn};
@@ -750,10 +755,10 @@ typename ms::tree<T, A>::iterator ms::tree<T, A>::erase (const_iterator iter) {
         auto & parent_children = iter.__current->__p ? iter.__current->__p->__c : __nodes;
         auto node_it = std::find_if(parent_children.begin(), parent_children.end(), [&](auto v){ return v == iter.__current; });
         if((*node_it)->__l) {
-            (*node_it)->__l = (*node_it)->__r;
+            (*node_it)->__l->__r = (*node_it)->__r;
         }
         if((*node_it)->__r) {
-            (*node_it)->__r = (*node_it)->__l;
+            (*node_it)->__r->__l = (*node_it)->__l;
         }
         __size -= node::release(*node_it);
         parent_children.erase(node_it);

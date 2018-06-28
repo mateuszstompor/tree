@@ -32,6 +32,7 @@ class aTreeTest : public CppUnit::TestFixture {
     CPPUNIT_TEST(testInsert5);
     CPPUNIT_TEST(testPerformance);
     CPPUNIT_TEST(testTreeConversionConstructor);
+    CPPUNIT_TEST(testDeletionNodePtrs);
     CPPUNIT_TEST_SUITE_END();
 public:
     void setUp();
@@ -56,8 +57,10 @@ public:
     void testInsertTree();
     void testPerformance();
     void testTreeConversionConstructor();
+    void testDeletionNodePtrs();
 private:
     ms::tree<int>* tree;
     ms::tree<int>* s_tree;
     ms::tree<int>  t_tree;
+    ms::tree<int>  deletionTree;
 };
