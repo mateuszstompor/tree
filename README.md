@@ -12,6 +12,16 @@ Only one
 ## How to compile it?
 There is no need of compilation. It is a header only, one class lib.
 
+## Installation
+If you would like to install the library once and for all I suggest using CMake and running the snippet placed below.
+```c
+$ git clone https://github.com/mateuszstompor/tree.git
+$ cd tree
+$ mkdir build && cd build
+$ cmake ..
+$ make install
+```
+
 ## Can I trust it?
 Yes, whole project is tested and works correctly.
 
