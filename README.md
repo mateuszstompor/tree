@@ -85,8 +85,8 @@ Yes, the entire project is tested and works correctly.
 To use the class, you need one of the listed compilers to build your project.
 If you wish to use the class on Windows, please compile with the `__WIN32__` flag.
 <ul>
-<li>GCC, version 8.1</li>
-<li>clang, version 6.0</li>
+<li>GCC, version 9.0</li>
+<li>clang, version 11.0</li>
 </ul>
 
 ### Contributing
