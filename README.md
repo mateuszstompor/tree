@@ -1,4 +1,4 @@
-## Tree &middot; [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Build Status](https://www.travis-ci.org/mateuszstompor/tree.svg?branch=master)](https://www.travis-ci.org/mateuszstompor/tree)
+## Tree &middot; [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Build Status](https://github.com/mateuszstompor/tree/actions/workflows/ci.yml/badge.svg)](https://github.com/mateuszstompor/tree/actions/workflows/ci.yml)
 
 
 ### Purpose
