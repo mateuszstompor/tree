@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up GCC 9
+      run: |
+        sudo apt-get update
+        sudo apt-get install g++-9 gcc-9
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 80
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 80
+
+    - name: Install CppUnit
+      run: sudo apt-get install libcppunit-dev
+
+    - name: Unit Tests
+      run: make tests
+
+  memory-check:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up GCC 9
+      run: |
+        sudo apt-get update
+        sudo apt-get install g++-9 gcc-9
+        sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-9 80
+        sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-9 80
+
+    - name: Install Valgrind
+      run: sudo apt-get install valgrind
+
+    - name: Install CppUnit
+      run: sudo apt-get install libcppunit-dev
+
+    - name: Run Memory Check
+      run: make mem_check

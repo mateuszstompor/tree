@@ -1,4 +1,4 @@
-## Tree &middot; [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Build Status](https://www.travis-ci.org/mateuszstompor/tree.svg?branch=master)](https://www.travis-ci.org/mateuszstompor/tree)
+## Tree &middot; [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![Build Status](https://github.com/mateuszstompor/tree/actions/workflows/ci.yml/badge.svg)](https://github.com/mateuszstompor/tree/actions/workflows/ci.yml)
 
 
 ### Purpose
@@ -85,8 +85,8 @@ Yes, the entire project is tested and works correctly.
 To use the class, you need one of the listed compilers to build your project.
 If you wish to use the class on Windows, please compile with the `__WIN32__` flag.
 <ul>
-<li>GCC, version 8.1</li>
-<li>clang, version 6.0</li>
+<li>GCC, version 9.0</li>
+<li>clang, version 11.0</li>
 </ul>
 
 ### Contributing
